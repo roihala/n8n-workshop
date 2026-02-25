@@ -22,8 +22,12 @@
 
 ```
 ├── index.html      Course home (syllabus + setup)
-├── lab1.html       Lab 1 exercises
-├── lab2.html       Lab 2 exercises
+├── lab1.html       Lab 1 exercises (4 exercises with provided workflow JSONs)
+├── lab2.html       Lab 2 exercises (3 exercises with community templates)
 ├── workshop.html   Final workshop guide
+├── workflows/      Exercise workflow JSON files for Lab 1
+│   ├── exercise_1_data_flow.json
+│   ├── exercise_2_code_debugging.json
+│   └── exercise_4_llm_debugging.json
 └── images/         Workshop reference images
 ```
