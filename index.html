@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>n8n Workshop — Building AI-Powered Workflows</title>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --border: #30363d;
+            --text: #e6edf3;
+            --text-muted: #8b949e;
+            --accent: #ff6d5a;
+            --accent2: #58a6ff;
+            --accent3: #3fb950;
+            --link: #58a6ff;
+            --code-bg: #1c2129;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            font-size: 16px;
+        }
+        .hero {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            padding: 80px 24px 60px;
+            text-align: center;
+            border-bottom: 2px solid var(--accent);
+        }
+        .hero h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+            background: linear-gradient(90deg, var(--accent), #ffa07a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+        nav.toc {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 28px 32px;
+            margin-bottom: 48px;
+        }
+        nav.toc h2 {
+            font-size: 1.1rem;
+            color: var(--accent);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        nav.toc ul { list-style: none; }
+        nav.toc li { margin-bottom: 8px; }
+        nav.toc a {
+            color: var(--link);
+            text-decoration: none;
+            font-size: 1.05rem;
+            transition: color 0.2s;
+        }
+        nav.toc a:hover { color: var(--accent); }
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 32px;
+        }
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            margin: 24px 0;
+        }
+        .card-small {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .card-small h4 {
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--text);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 8px;
+        }
+        h3 {
+            font-size: 1.3rem;
+            margin: 24px 0 12px;
+            color: var(--accent2);
+        }
+        h4 {
+            font-size: 1.1rem;
+            margin: 16px 0 8px;
+            color: var(--text);
+        }
+        p { margin-bottom: 16px; }
+        a { color: var(--link); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 0.95rem;
+        }
+        th, td {
+            text-align: left;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+        }
+        th {
+            background: var(--code-bg);
+            color: var(--accent2);
+            font-weight: 600;
+        }
+        tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+        code {
+            background: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.9em;
+            color: var(--accent3);
+        }
+        pre {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        pre code {
+            background: none;
+            padding: 0;
+        }
+        ul, ol {
+            margin: 12px 0 16px 24px;
+        }
+        li { margin-bottom: 6px; }
+        blockquote {
+            border-left: 3px solid var(--accent);
+            padding: 12px 20px;
+            margin: 16px 0;
+            background: rgba(255,109,90,0.05);
+            border-radius: 0 8px 8px 0;
+            color: var(--text-muted);
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .badge-lesson { background: rgba(88,166,255,0.15); color: var(--accent2); }
+        .badge-workshop { background: rgba(255,109,90,0.15); color: var(--accent); }
+        .badge-lab { background: rgba(63,185,80,0.15); color: var(--accent3); }
+        .checklist {
+            list-style: none;
+            margin-left: 0;
+        }
+        .checklist li::before {
+            content: '☐ ';
+            color: var(--accent2);
+        }
+        footer {
+            text-align: center;
+            padding: 40px 24px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border);
+        }
+        @media (max-width: 640px) {
+            .hero h1 { font-size: 1.8rem; }
+            .hero { padding: 48px 16px 36px; }
+            .container { padding: 24px 16px; }
+            .card { padding: 20px; }
+            table { font-size: 0.85rem; }
+            th, td { padding: 8px 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="hero">
+    <h1>Building AI-Powered Workflows with n8n</h1>
+    <p>2 lessons + 1 hands-on workshop. From zero to AI agents that connect to real data and do real thinking.</p>
+</div>
+
+<div class="container">
+
+    <nav class="toc">
+        <h2>Contents</h2>
+        <ul>
+            <li><a href="#syllabus">Course Syllabus</a></li>
+            <li><a href="#lab1">Lab 1 — Data Flow, Context, and LLM-Powered Building</a></li>
+            <li><a href="#lab2">Lab 2 — AI Workflows: Agents, Structure, and Collaboration</a></li>
+            <li><a href="#workshop">Workshop — Build a Superpowered AI Agent</a></li>
+            <li><a href="#setup">IT Setup Guide</a></li>
+            <li><a href="#resources">Resources</a></li>
+        </ul>
+    </nav>
+
+    <!-- ============ SYLLABUS ============ -->
+    <section id="syllabus">
+        <h2>Course Syllabus</h2>
+
+        <div class="card">
+            <table>
+                <tr><th>Format</th><td>2 lessons (90 min each) + 1 hands-on workshop (90 min)</td></tr>
+                <tr><th>Audience</th><td>Practitioners with basic familiarity with automation concepts, JSON, and terminal usage</td></tr>
+                <tr><th>Prerequisites</th><td>n8n installed and running locally, basic understanding of APIs and JSON</td></tr>
+            </table>
+        </div>
+
+        <!-- Lesson 1 -->
+        <div class="card">
+            <h3><span class="badge badge-lesson">Lesson 1</span> Mastering n8n: Data, Context, and LLM-Powered Building</h3>
+            <p><strong>Duration:</strong> 90 minutes (45 min talk + 45 min practice)</p>
+            <blockquote>By the end of this lesson, students will be able to: build multi-step workflows with proper data flow, use an LLM to generate and iterate on complete n8n workflows, apply prompt engineering best practices, debug workflows using LLMs, and handle errors gracefully.</blockquote>
+
+            <h4>Talk (45 min)</h4>
+            <table>
+                <tr><th>Section</th><th>Duration</th><th>Topics</th></tr>
+                <tr><td>1.0 Automation vs. Vibe Coding</td><td>8 min</td><td>When n8n shines (visual orchestration, reliability), when it doesn't (one-off complex tasks), and why you use both</td></tr>
+                <tr><td>1.1 How Data Flows in n8n</td><td>8 min</td><td>JSON backbone, node-to-node data passing, expressions, import/export workflows</td></tr>
+                <tr><td>1.2 Using LLMs to Generate Workflows</td><td>12 min</td><td>The generation loop: describe &rarr; generate JSON &rarr; import &rarr; test &rarr; fix &rarr; repeat</td></tr>
+                <tr><td>1.3 Prompt Engineering Best Practices</td><td>10 min</td><td>Structured prompts, Chain of Thought, context management, debugging with LLMs</td></tr>
+                <tr><td>1.4 Error Handling</td><td>5 min</td><td>Error workflows, retry logic, fallback paths</td></tr>
+                <tr><td>1.5 Scheduling &amp; Cron Jobs</td><td>3-5 min</td><td>Trigger types, cron syntax, practical scheduling patterns</td></tr>
+            </table>
+
+            <h4>Practice (45 min)</h4>
+            <p><a href="lab1.html"><span class="badge badge-lab">Lab 1</span> Data Flow, Context, and LLM-Powered Building</a></p>
+            <table>
+                <tr><th>Exercise</th><th>What They Build</th><th>Key Skill</th></tr>
+                <tr><td>1. Import, Explore, and Extend</td><td>Customize a community template</td><td>Importing templates, node-to-node data flow</td></tr>
+                <tr><td>2. Context-Aware Multi-Step Workflow</td><td>Workflow with cross-node data references</td><td>Data scoping, expressions, context management</td></tr>
+                <tr><td>3. Generate a Workflow with an LLM</td><td>LLM-generated workflow, iterated to working state</td><td>The describe &rarr; generate &rarr; test &rarr; fix loop</td></tr>
+            </table>
+        </div>
+
+        <!-- Lesson 2 -->
+        <div class="card">
+            <h3><span class="badge badge-lesson">Lesson 2</span> AI Workflows: Reasoning, Structure, and Collaboration</h3>
+            <p><strong>Duration:</strong> 90 minutes (45 min talk + 45 min practice)</p>
+            <blockquote>By the end of this lesson, students will be able to: connect AI models as workflow nodes, build workflows that parse and route based on structured AI output, create LangChain-powered reasoning chains, implement human-in-the-loop checkpoints, design multi-agent collaboration patterns, and connect external tools via MCP.</blockquote>
+
+            <h4>Talk (45 min)</h4>
+            <table>
+                <tr><th>Section</th><th>Duration</th><th>Topics</th></tr>
+                <tr><td>2.1 Connecting AI Nodes</td><td>8 min</td><td>AI node setup (Gemini, Grok), basic AI calls, system prompts in workflows</td></tr>
+                <tr><td>2.2 Output Parsing &amp; Structured Data</td><td>7 min</td><td>Structured output prompting, output parsers, routing based on AI output</td></tr>
+                <tr><td>2.3 LangChain Integration</td><td>12 min</td><td>AI Agent node, tool nodes, chat memory, agent reasoning</td></tr>
+                <tr><td>2.4 Human-in-the-Loop Patterns</td><td>6 min</td><td>Wait nodes, webhook-based approval, designing approval gates</td></tr>
+                <tr><td>2.5 Multi-Agent Patterns</td><td>7 min</td><td>Generator+Critic, specialist routing, consensus patterns</td></tr>
+                <tr><td>2.6 MCP Client</td><td>5 min</td><td>Connecting to external MCP servers from n8n</td></tr>
+                <tr><td>2.7 Workflow Libraries</td><td>5 min</td><td>Official templates (n8n.io/workflows), import/export, when to import vs. build</td></tr>
+            </table>
+
+            <h4>Practice (45 min)</h4>
+            <p><a href="lab2.html"><span class="badge badge-lab">Lab 2</span> AI Workflows: Agents, Structure, and Collaboration</a></p>
+            <table>
+                <tr><th>Exercise</th><th>What They Build</th><th>Key Skill</th><th>Community Template</th></tr>
+                <tr><td>1. AI Classification with Structured Output</td><td>Classifier + router</td><td>Structured output parsing, IF/Switch</td><td><a href="https://n8n.io/workflows/9557">#9557</a></td></tr>
+                <tr><td>2. AI Agent with Tools</td><td>Agent that selects tools</td><td>AI Agent node, tools, memory</td><td><a href="https://n8n.io/workflows/6270">#6270</a></td></tr>
+                <tr><td>3. Multi-Agent Collaboration</td><td>Supervisor + sub-agents</td><td>Supervisor-delegates pattern</td><td><a href="https://n8n.io/workflows/7158">#7158</a></td></tr>
+            </table>
+        </div>
+
+        <!-- Workshop -->
+        <div class="card">
+            <h3><span class="badge badge-workshop">Workshop</span> Build a Superpowered AI Agent</h3>
+            <blockquote>Teams of 2-3. Build an AI agent that connects to real data, does real thinking, and delivers an output that makes people go "wait, it can do that?"</blockquote>
+            <p><a href="workshop.html">Open full workshop guide &rarr;</a></p>
+            <table>
+                <tr><th>Phase</th><th>What Happens</th></tr>
+                <tr><td>Phase 1: What Should Your Agent Do?</td><td>Teams brainstorm, guided discovery exercise, validate with instructor</td></tr>
+                <tr><td>Phase 2: Design the Agent</td><td>Draw the flow, choose nodes, write system prompts, find starter templates</td></tr>
+                <tr><td>Phase 3: Build It</td><td>Skeleton &rarr; real data &rarr; AI thinking &rarr; decisions &rarr; output &rarr; test</td></tr>
+                <tr><td>Phase 4: Demo</td><td>Trigger live, walk the AI's thinking, show the result in a real tool</td></tr>
+            </table>
+        </div>
+    </section>
+
+    <!-- ============ SETUP ============ -->
+    <section id="setup">
+        <h2>IT Setup Guide</h2>
+        <div class="card">
+            <table>
+                <tr><th>Component</th><th>Requirement</th></tr>
+                <tr><td>n8n</td><td>Running locally (Docker or npm)</td></tr>
+                <tr><td>Browser</td><td>Chrome or Firefox (latest)</td></tr>
+                <tr><td>API keys</td><td>Gemini API key and/or Grok (xAI) API key per machine or per team</td></tr>
+                <tr><td>Network</td><td>Internet access for API calls and MCP server connections</td></tr>
+            </table>
+
+            <h3>Pre-workshop Verification</h3>
+<pre><code># Verify n8n is running
+curl -s http://localhost:5678/healthz
+
+# Verify API key access (Gemini)
+curl -s "https://generativelanguage.googleapis.com/v1/models?key=$GEMINI_API_KEY" | head -1
+
+# Verify API key access (Grok / xAI)
+curl -s https://api.x.ai/v1/models -H "Authorization: Bearer $XAI_API_KEY" | head -1</code></pre>
+        </div>
+    </section>
+
+    <!-- ============ RESOURCES ============ -->
+    <section id="resources">
+        <h2>Resources</h2>
+        <div class="card">
+            <ul>
+                <li><a href="https://docs.n8n.io/">n8n Official Documentation</a></li>
+                <li><a href="https://docs.n8n.io/advanced-ai/langchain/overview/">n8n LangChain Integration</a></li>
+                <li><a href="https://community.n8n.io/">n8n Community</a></li>
+                <li><a href="https://n8n.io/workflows/">n8n Workflow Template Library</a> (8,000+ community templates)</li>
+            </ul>
+        </div>
+    </section>
+
+</div>
+
+<footer>
+    <p>n8n Workshop &mdash; Building AI-Powered Workflows &mdash; Sela</p>
+</footer>
+
+</body>
+</html>

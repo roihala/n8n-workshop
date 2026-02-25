@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workshop — Build a Superpowered AI Agent</title>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --border: #30363d;
+            --text: #e6edf3;
+            --text-muted: #8b949e;
+            --accent: #ff6d5a;
+            --accent2: #58a6ff;
+            --accent3: #3fb950;
+            --link: #58a6ff;
+            --code-bg: #1c2129;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            font-size: 16px;
+        }
+        .hero {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            padding: 60px 24px 40px;
+            text-align: center;
+            border-bottom: 2px solid var(--accent);
+        }
+        .hero .breadcrumb { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 12px; }
+        .hero .breadcrumb a { color: var(--link); text-decoration: none; }
+        .hero h1 {
+            font-size: 2.4rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--accent), #ffa07a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero p { color: var(--text-muted); max-width: 600px; margin: 8px auto 0; }
+        .container { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+        .phase-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 8px;
+        }
+        .phase-number {
+            background: var(--accent);
+            color: #fff;
+            font-size: 1.4rem;
+            font-weight: 800;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .phase-header h2 { font-size: 1.6rem; border: none; padding: 0; margin: 0; }
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 28px;
+            margin-bottom: 32px;
+        }
+        h3 { font-size: 1.2rem; margin: 20px 0 10px; color: var(--accent2); }
+        h4 { font-size: 1.05rem; margin: 14px 0 8px; color: var(--text); }
+        p { margin-bottom: 14px; }
+        a { color: var(--link); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.95rem; }
+        th, td { text-align: left; padding: 10px 14px; border: 1px solid var(--border); }
+        th { background: var(--code-bg); color: var(--accent2); font-weight: 600; }
+        tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+        code {
+            background: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.9em;
+            color: var(--accent3);
+        }
+        pre {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+        pre code { background: none; padding: 0; }
+        ul, ol { margin: 12px 0 16px 24px; }
+        li { margin-bottom: 6px; }
+        blockquote {
+            border-left: 3px solid var(--accent);
+            padding: 12px 20px;
+            margin: 16px 0;
+            background: rgba(255,109,90,0.05);
+            border-radius: 0 8px 8px 0;
+            color: var(--text-muted);
+        }
+        .checklist { list-style: none; margin-left: 0; }
+        .checklist li { padding-left: 28px; position: relative; }
+        .checklist li::before {
+            content: '☐';
+            position: absolute;
+            left: 0;
+            color: var(--accent2);
+        }
+        .template-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin: 16px 0;
+        }
+        .template-card {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+        }
+        .template-card strong { color: var(--accent); }
+        .template-card .meta { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+        hr { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+        footer {
+            text-align: center;
+            padding: 40px 24px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border);
+        }
+        @media (max-width: 640px) {
+            .hero h1 { font-size: 1.6rem; }
+            .hero { padding: 40px 16px 28px; }
+            .container { padding: 24px 16px; }
+            .card { padding: 20px; }
+            table { font-size: 0.85rem; }
+            th, td { padding: 8px 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="hero">
+    <div class="breadcrumb"><a href="index.html">&larr; Back to Course</a></div>
+    <h1>Build a Superpowered AI Agent</h1>
+    <p>Teams of 2-3. Connect to real data. Do real thinking. Make people go "wait, it can do that?"</p>
+</div>
+
+<div class="container">
+
+    <div class="card">
+        <table>
+            <tr><th>Prerequisites</th><td>Lessons 1 and 2 completed (talks and labs). n8n running locally. API keys configured (Gemini or Grok).</td></tr>
+            <tr><th>Team size</th><td>Pairs or groups of three</td></tr>
+        </table>
+    </div>
+
+    <!-- Phase 1 -->
+    <div class="phase-header">
+        <div class="phase-number">1</div>
+        <h2>What Should Your Agent Do?</h2>
+    </div>
+
+    <div class="card">
+        <p>We're not building a demo. We're not automating a boring process. You're going to build an AI agent that does something that makes people go "wait, it can do that?" Something that connects to real data, thinks about it, and produces an output that would take a human an hour to do manually. By the end of this session, you'll have a working agent you can show to your team tomorrow.</p>
+
+        <h3>The Discovery Exercise</h3>
+        <p>As a team, answer these questions. Write the answers down.</p>
+
+        <h4>1. What would blow your mind if an AI could just... do it?</h4>
+        <p>Think big. Think about things that require reading, understanding, judgment, synthesis.</p>
+        <ul>
+            <li>Connect to your Google Drive, read through 20 accounting documents, and produce a one-page executive summary with the three things your CFO needs to know</li>
+            <li>Scrape today's top news, cross-reference with your company's industry, and produce a morning brief that says "here's what matters to you today and here's what you should do about it"</li>
+            <li>Read a GitHub repository's last 50 commits and generate a changelog, a risk assessment, and a list of things that need code review</li>
+            <li>Take a job posting URL, research the company, analyze the role, and produce a personalized cover letter plus interview prep notes</li>
+            <li>Monitor a Telegram channel, detect when someone asks a question, research the answer from your docs, and respond automatically</li>
+            <li>Read a CSV of customer feedback, identify patterns, rank issues by severity, and draft a product roadmap recommendation</li>
+        </ul>
+
+        <h4>2. What real data can you connect it to?</h4>
+        <table>
+            <tr><th>Data Source</th><th>What the Agent Could Do With It</th></tr>
+            <tr><td>Google Drive / Docs</td><td>Read and summarize documents, extract key information, compare files</td></tr>
+            <tr><td>Google Sheets</td><td>Analyze data, identify trends, generate reports</td></tr>
+            <tr><td>Gmail</td><td>Read emails, classify them, draft responses, extract action items</td></tr>
+            <tr><td>Slack / Telegram</td><td>Monitor conversations, answer questions, generate digests</td></tr>
+            <tr><td>RSS feeds / News APIs</td><td>Gather current events, filter by relevance, produce briefings</td></tr>
+            <tr><td>GitHub</td><td>Analyze repos, review code, generate documentation</td></tr>
+            <tr><td>URLs / Websites</td><td>Scrape content, extract data, monitor changes</td></tr>
+            <tr><td>CSV / JSON files</td><td>Clean data, find patterns, generate analysis</td></tr>
+        </table>
+
+        <h4>3. What should the output look like?</h4>
+        <ul>
+            <li>A structured report delivered to Slack or email</li>
+            <li>A Google Doc created automatically with analysis and recommendations</li>
+            <li>A spreadsheet populated with extracted and organized data</li>
+            <li>A Telegram message with a daily intelligence briefing</li>
+            <li>A dashboard-ready JSON with scored and categorized insights</li>
+        </ul>
+
+        <h3>Write Your Agent Pitch</h3>
+        <blockquote><strong>"Our agent connects to [data source], [does something intelligent with it], and delivers [impressive output] to [destination]."</strong></blockquote>
+        <p>Examples:</p>
+        <ul>
+            <li><em>"Our agent connects to Google Drive, reads all invoices from this month, extracts vendor names, amounts, and due dates, identifies anything overdue, and posts a financial summary to Slack with action items."</em></li>
+            <li><em>"Our agent scrapes 5 news sources every morning, filters for articles relevant to our industry, analyzes sentiment and potential business impact, and sends a one-page morning brief to the team's email."</em></li>
+            <li><em>"Our agent reads a GitHub repo URL, analyzes the code structure, identifies the tech stack, estimates complexity, and produces a technical assessment document in Google Docs."</em></li>
+            <li><em>"Our agent takes a product description, researches competitor products on the web, compares features and pricing, and generates a competitive analysis spreadsheet."</em></li>
+        </ul>
+
+        <h3>Community Inspiration</h3>
+        <p>Real workflows from the n8n community at <a href="https://n8n.io/workflows">n8n.io/workflows</a>. Import any, study the pattern, use as a starting point.</p>
+
+        <h4>Research &amp; Intelligence</h4>
+        <div class="template-grid">
+            <div class="template-card">
+                <strong>Deep Research Agent</strong> — Takes a question, runs recursive web searches, builds up knowledge, generates a comprehensive report
+                <div class="meta">Apify, OpenAI &middot; <a href="https://n8n.io/workflows/2878">#2878</a></div>
+            </div>
+            <div class="template-card">
+                <strong>Daily News Briefing</strong> — Scrapes Google News + Hacker News, filters by topic, AI summarizes, delivers to Telegram
+                <div class="meta">RSS, GPT-4, Telegram &middot; <a href="https://n8n.io/workflows/9155">#9155</a></div>
+            </div>
+            <div class="template-card">
+                <strong>Chat With Your Google Drive</strong> — Turns docs into a searchable knowledge base with vector embeddings
+                <div class="meta">Google Drive, GPT-4o, vector store &middot; <a href="https://n8n.io/workflows/6250">#6250</a></div>
+            </div>
+        </div>
+
+        <h4>Multi-Agent Systems</h4>
+        <div class="template-grid">
+            <div class="template-card">
+                <strong>Jarvis on WhatsApp</strong> — Personal AI assistant that delegates to specialist agents (calendar, email, research, tasks)
+                <div class="meta">WhatsApp, OpenAI &middot; <a href="https://n8n.io/workflows/6186">#6186</a></div>
+            </div>
+            <div class="template-card">
+                <strong>Self-Improving Content Loop</strong> — Three agents (critic, refiner, evaluator) iterate until quality threshold is met
+                <div class="meta">GPT-4 &middot; <a href="https://n8n.io/workflows/5597">#5597</a></div>
+            </div>
+            <div class="template-card">
+                <strong>Content Factory with Approval</strong> — RSS &rarr; blog + Instagram + TikTok content &rarr; Slack approval &rarr; publish
+                <div class="meta">RSS, Slack, WordPress, Instagram &middot; <a href="https://n8n.io/workflows/11298">#11298</a></div>
+            </div>
+        </div>
+
+        <h4>Documents &amp; Analysis</h4>
+        <div class="template-grid">
+            <div class="template-card">
+                <strong>Legal Document Analysis</strong> — Reads contracts, identifies risks, extracts key terms, logs to Sheets
+                <div class="meta">GPT-4, Gmail, Google Sheets &middot; <a href="https://n8n.io/workflows/7610">#7610</a></div>
+            </div>
+            <div class="template-card">
+                <strong>Competitor Analysis to Google Docs</strong> — Scrapes competitors, analyzes positioning, writes full analysis
+                <div class="meta">Apify, GPT-4, Google Docs &middot; <a href="https://n8n.io/workflows/6580">#6580</a></div>
+            </div>
+            <div class="template-card">
+                <strong>SWOT Analysis: Spreadsheet to PDF</strong> — Company data &rarr; narrative SWOT &rarr; PDF &rarr; email
+                <div class="meta">Google Sheets, OpenAI, PDF, Gmail &middot; <a href="https://n8n.io/workflows/5622">#5622</a></div>
+            </div>
+        </div>
+
+        <h4>Business &amp; Sales</h4>
+        <div class="template-grid">
+            <div class="template-card">
+                <strong>AI Sales Agent</strong> — Reads emails, scores leads, responds autonomously, tracks status over time
+                <div class="meta">Gmail, CRM, AI &middot; <a href="https://n8n.io/workflows/10128">#10128</a></div>
+            </div>
+            <div class="template-card">
+                <strong>Lead Scoring with Salesforce</strong> — Pulls leads, scores 0-100 with AI, drafts personalized emails, posts to Slack
+                <div class="meta">Salesforce, GPT-4o, Slack &middot; <a href="https://n8n.io/workflows/4592">#4592</a></div>
+            </div>
+            <div class="template-card">
+                <strong>Stock Analysis</strong> — Market data + technical indicators + sentiment &rarr; full analysis report
+                <div class="meta">Financial APIs, GPT-4o &middot; <a href="https://n8n.io/workflows/3790">#3790</a></div>
+            </div>
+        </div>
+
+        <h3>Validation Check</h3>
+        <ul class="checklist">
+            <li>The agent does something that would genuinely impress someone who sees it for the first time</li>
+            <li>It connects to at least one real data source (not hardcoded sample data)</li>
+            <li>The AI is doing real thinking (analysis, synthesis, judgment) not just reformatting</li>
+            <li>The output is delivered somewhere real (Slack, email, Google Docs, Sheets, Telegram)</li>
+            <li>You can describe it in one sentence and it sounds cool</li>
+        </ul>
+        <p><strong>Share your pitch with the instructor.</strong> They'll help you scope it and suggest which n8n nodes and patterns will get you there fastest.</p>
+    </div>
+
+    <hr>
+
+    <!-- Phase 2 -->
+    <div class="phase-header">
+        <div class="phase-number">2</div>
+        <h2>Design the Agent</h2>
+    </div>
+
+    <div class="card">
+        <h3>Step 1: Draw the Flow</h3>
+        <p>Map what the agent does from trigger to output. Mark where the AI thinks.</p>
+<pre><code>Example: Morning News Intelligence Agent
+
+Schedule Trigger (7:00 AM)
+    → HTTP Request (fetch RSS feed 1)
+    → HTTP Request (fetch RSS feed 2)
+    → Merge (combine all articles)
+    → AI Node: "Filter these articles. Which ones are relevant to [industry]?
+               Return JSON: [{title, url, relevance_score, why_it_matters}]"
+    → Code Node (parse, sort by relevance)
+    → AI Node: "Given these relevant articles, write a 3-paragraph morning brief.
+               What happened, what it means for us, what we should do."
+    → Gmail: Send to team@company.com</code></pre>
+<pre><code>Example: Document Intelligence Agent
+
+Manual Trigger (or Form Trigger with a Google Drive folder URL)
+    → Google Drive: List files in folder
+    → Loop: For each file → Google Drive: Download → AI Node: Extract key information
+    → Merge all extractions
+    → AI Node: "Synthesize all extracted information into an executive summary.
+               Identify the 3 most important findings and any red flags."
+    → Google Docs: Create new document with the summary
+    → Slack: Post link to the document in #reports</code></pre>
+
+        <h3>Step 2: Choose Your Nodes</h3>
+        <table>
+            <tr><th>Your Agent Needs To...</th><th>n8n Node</th></tr>
+            <tr><td>Run on a schedule</td><td>Schedule Trigger</td></tr>
+            <tr><td>React to an event</td><td>Slack Trigger, Gmail Trigger, Webhook</td></tr>
+            <tr><td>Start from user input</td><td>Form Trigger, Chat Trigger</td></tr>
+            <tr><td>Fetch web content</td><td>HTTP Request</td></tr>
+            <tr><td>Read from Google Drive</td><td>Google Drive node</td></tr>
+            <tr><td>Read/write spreadsheets</td><td>Google Sheets node</td></tr>
+            <tr><td>Send results</td><td>Gmail, Slack, Telegram, Google Docs</td></tr>
+            <tr><td>Think and analyze</td><td>Basic LLM Chain, AI Agent</td></tr>
+            <tr><td>Parse AI output</td><td>Code Node, Structured Output Parser</td></tr>
+            <tr><td>Make decisions</td><td>IF, Switch</td></tr>
+            <tr><td>Use tools dynamically</td><td>AI Agent + Tool nodes</td></tr>
+            <tr><td>Delegate to specialists</td><td>AI Agent + Agent Tool sub-agents</td></tr>
+        </table>
+
+        <h3>Step 3: Write System Prompts</h3>
+        <p>For every AI node, write the prompt before you build. This is what makes the agent smart.</p>
+        <ul>
+            <li><strong>Role:</strong> one sentence ("You are a financial analyst reviewing invoices")</li>
+            <li><strong>Input:</strong> what data it receives</li>
+            <li><strong>Output format:</strong> be extremely specific, especially if you need JSON</li>
+            <li><strong>Constraints:</strong> what it should NOT do ("Don't make up information not present in the documents")</li>
+        </ul>
+
+        <h3>Step 4: Find a Starter Template</h3>
+        <p>Search <a href="https://n8n.io/workflows/">n8n.io/workflows</a> for something close to what you need. Import it, study it, adapt it.</p>
+        <table>
+            <tr><th>If Your Agent...</th><th>Start With This Template</th></tr>
+            <tr><td>Classifies and routes</td><td><a href="https://n8n.io/workflows/9557">#9557</a> — Structured output + IF/Switch</td></tr>
+            <tr><td>Uses tools to gather info</td><td><a href="https://n8n.io/workflows/6270">#6270</a> — AI Agent with tools</td></tr>
+            <tr><td>Has multiple specialists</td><td><a href="https://n8n.io/workflows/7158">#7158</a> — Manager + sub-agents</td></tr>
+            <tr><td>Analyzes from multiple angles</td><td><a href="https://n8n.io/workflows/9545">#9545</a> — Multi-agent analysis</td></tr>
+            <tr><td>Needs human approval</td><td><a href="https://n8n.io/workflows/3123">#3123</a> — Webhook approval gate</td></tr>
+            <tr><td>Scrapes websites</td><td><a href="https://n8n.io/workflows/2006">#2006</a> — ReAct agent with HTTP</td></tr>
+            <tr><td>Processes RSS/news</td><td><a href="https://n8n.io/workflows/4709">#4709</a> — Multi-source AI summary</td></tr>
+        </table>
+
+        <h3>Design Checklist</h3>
+        <ul class="checklist">
+            <li>At least one real data source connected (Drive, Sheets, RSS, API, email)</li>
+            <li>At least one AI node doing real analysis (not just reformatting)</li>
+            <li>Output delivered to a real destination (Slack, email, Docs, Sheets)</li>
+            <li>System prompts written for every AI node</li>
+            <li>You can explain it in one sentence and it sounds impressive</li>
+        </ul>
+        <p><strong>Show your design to the instructor</strong> before building.</p>
+    </div>
+
+    <hr>
+
+    <!-- Phase 3 -->
+    <div class="phase-header">
+        <div class="phase-number">3</div>
+        <h2>Build It</h2>
+    </div>
+
+    <div class="card">
+        <p>Open n8n at <code>http://localhost:5678</code>. Create a new workflow.</p>
+
+        <h3>Build Order</h3>
+        <h4>1. Skeleton first.</h4>
+        <p>Lay down all nodes and connect them. Placeholder prompts for AI nodes. Sample data after the trigger. Run it. Data flows end-to-end without errors.</p>
+
+        <h4>2. Connect real data.</h4>
+        <p>Set up credentials for your data sources (Google Drive, Gmail, Sheets, etc.). Test the connection. Get real data flowing. This is the first "wow."</p>
+
+        <h4>3. Make the AI think.</h4>
+        <p>Replace placeholder prompts with your real system prompts. Test each AI node individually with "Test step." This is the second "wow."</p>
+        <p>If you're getting structured output (JSON from AI), common fixes:</p>
+        <ul>
+            <li>Add "Return ONLY valid JSON, no markdown, no explanation" to your system prompt</li>
+            <li>Add a Code node: <code>text.replace(/```json\n?/g, '').replace(/```\n?/g, '')</code></li>
+            <li>Use the Structured Output Parser node instead of manual parsing</li>
+        </ul>
+
+        <h4>4. Wire decision logic.</h4>
+        <p>Add IF/Switch nodes if your agent needs to branch. Connect parsed AI output to drive routing.</p>
+
+        <h4>5. Deliver the output.</h4>
+        <p>Connect the final output to a real destination. Send the email. Post to Slack. Create the Google Doc. This is the third "wow."</p>
+
+        <h4>6. Test with real data.</h4>
+        <p>Run the full workflow end-to-end with real input. Not sample data. Real documents, real emails, real URLs.</p>
+
+        <h3>Debugging</h3>
+        <table>
+            <tr><th>Problem</th><th>Fix</th></tr>
+            <tr><td>"No data" at a node</td><td>Click previous node, check output, fix field mapping</td></tr>
+            <tr><td>AI returns garbage</td><td>Check Input tab. Fix system prompt. Be more specific.</td></tr>
+            <tr><td>IF/Switch always goes one way</td><td>Test expression in Expression Editor with actual data</td></tr>
+            <tr><td>Credential error</td><td>Re-authenticate in Settings &rarr; Credentials</td></tr>
+            <tr><td>Google Drive / Sheets permission error</td><td>Re-authorize OAuth. Make sure the right scopes are enabled.</td></tr>
+        </table>
+
+        <h3>When You're Stuck</h3>
+        <ol>
+            <li><strong>Inspect the data.</strong> Click any node after execution. 90% of bugs are data shape issues.</li>
+            <li><strong>Test nodes individually.</strong> "Test step" runs just that node.</li>
+            <li><strong>Simplify.</strong> Replace the complex part with something that works, then add complexity back.</li>
+            <li><strong>Search n8n.io/workflows</strong> for a template doing something similar.</li>
+            <li><strong>Raise your hand.</strong></li>
+        </ol>
+
+        <h3>Polish</h3>
+        <ul class="checklist">
+            <li><strong>Name your nodes</strong> descriptively ("Analyze Financial Docs" not "AI Node 3")</li>
+            <li><strong>Add sticky notes</strong> to label sections of the canvas</li>
+            <li><strong>Add error handling</strong> on critical nodes (Continue on Error)</li>
+            <li><strong>Export the workflow JSON</strong> as a backup</li>
+        </ul>
+    </div>
+
+    <hr>
+
+    <!-- Phase 4 -->
+    <div class="phase-header">
+        <div class="phase-number">4</div>
+        <h2>Demo</h2>
+    </div>
+
+    <div class="card">
+        <p>Each team demos their agent live.</p>
+
+        <h3>Demo Format</h3>
+        <ol>
+            <li><strong>The pitch.</strong> One sentence. What does your agent do?</li>
+            <li><strong>Trigger it.</strong> Run it live. Show real data going in.</li>
+            <li><strong>Walk the AI.</strong> Point to where the agent is thinking. Show what it decided and why.</li>
+            <li><strong>Show the result.</strong> Open Slack and show the message. Open Google Docs and show the report. The output should speak for itself.</li>
+            <li><strong>What's next.</strong> How would you make this even better?</li>
+        </ol>
+
+        <h3>What We're Looking For</h3>
+        <ul>
+            <li><strong>The "wait, it can do that?" reaction.</strong> Did the output genuinely impress?</li>
+            <li><strong>Real data in, real output out.</strong> Not sample data. Not hardcoded text.</li>
+            <li><strong>AI that thinks.</strong> The agent analyzed, synthesized, or judged something.</li>
+        </ul>
+    </div>
+
+    <hr>
+
+    <!-- Reference Patterns -->
+    <h2 style="border-bottom: 2px solid var(--border); padding-bottom: 8px; margin-bottom: 20px;">Reference: n8n Patterns</h2>
+
+    <div class="card">
+        <h3>The Classifier-Router</h3>
+<pre><code>Input → AI Classify (JSON: {category, priority}) → Parse → Switch [category]
+    ├── TYPE_A → handler_a ──┐
+    ├── TYPE_B → handler_b ──┼── Merge → output
+    └── TYPE_C → handler_c ──┘</code></pre>
+        <p><strong>n8n nodes:</strong> Basic LLM Chain + Code Node (parse) + Switch Node.</p>
+    </div>
+
+    <div class="card">
+        <h3>The Generator-Critic Loop</h3>
+<pre><code>Generate (AI Node) → Evaluate (AI Node, JSON: {score, feedback})
+    → IF [score >= threshold]
+        ├── YES → output
+        └── NO  → Generate (loop back with feedback, max 3 iterations)</code></pre>
+        <p><strong>n8n nodes:</strong> Two Basic LLM Chain nodes + Code Node + IF nodes.</p>
+    </div>
+
+    <div class="card">
+        <h3>The Supervisor-Delegates</h3>
+<pre><code>Input → Manager Agent [which specialist?]
+    ├── Specialist A (Agent Tool)
+    ├── Specialist B (Agent Tool)
+    └── Specialist C (Agent Tool)
+→ output</code></pre>
+        <p><strong>n8n nodes:</strong> AI Agent (manager) + AI Agent nodes wrapped as Agent Tools.</p>
+    </div>
+
+    <div class="card">
+        <h3>The Human-in-the-Loop Gate</h3>
+<pre><code>AI generates recommendation → Send for review (Slack/email)
+    → Wait Node → Webhook receives response
+    → IF [approved] → execute action</code></pre>
+        <p><strong>n8n nodes:</strong> Basic LLM Chain + Slack/Gmail + Wait Node + Webhook + IF.</p>
+    </div>
+
+    <div class="card" style="text-align: center; background: rgba(255,109,90,0.05);">
+        <p style="margin: 0; font-size: 1.1rem;"><strong>Export your workflow JSON. Activate it. Show it to your team tomorrow.</strong></p>
+    </div>
+
+</div>
+
+<footer>
+    <p><a href="index.html">&larr; Back to Course</a></p>
+    <p>n8n Workshop &mdash; Building AI-Powered Workflows &mdash; Sela</p>
+</footer>
+
+</body>
+</html>

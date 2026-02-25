@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 1 — Data Flow, Context, and LLM-Powered Building</title>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --border: #30363d;
+            --text: #e6edf3;
+            --text-muted: #8b949e;
+            --accent: #ff6d5a;
+            --accent2: #58a6ff;
+            --accent3: #3fb950;
+            --link: #58a6ff;
+            --code-bg: #1c2129;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            font-size: 16px;
+        }
+        .hero {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            padding: 60px 24px 40px;
+            text-align: center;
+            border-bottom: 2px solid var(--accent3);
+        }
+        .hero .breadcrumb { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 12px; }
+        .hero .breadcrumb a { color: var(--link); text-decoration: none; }
+        .hero h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--accent3), #7ee787);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero p { color: var(--text-muted); max-width: 650px; margin: 8px auto 0; }
+        .container { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+        .meta-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 40px;
+            font-size: 0.95rem;
+        }
+        .meta-card p { margin-bottom: 6px; }
+        .exercise {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 40px;
+        }
+        .exercise-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+        .exercise-num {
+            background: var(--accent3);
+            color: #0d1117;
+            font-size: 1.2rem;
+            font-weight: 800;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .exercise-header h2 {
+            font-size: 1.5rem;
+            border: none;
+            padding: 0;
+            margin: 0;
+        }
+        h2 { font-size: 1.6rem; margin-bottom: 16px; border-bottom: 2px solid var(--border); padding-bottom: 8px; }
+        h3 { font-size: 1.15rem; margin: 20px 0 10px; color: var(--accent2); }
+        h4 { font-size: 1.05rem; margin: 14px 0 8px; color: var(--text); }
+        p { margin-bottom: 14px; }
+        a { color: var(--link); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.95rem; }
+        th, td { text-align: left; padding: 10px 14px; border: 1px solid var(--border); }
+        th { background: var(--code-bg); color: var(--accent2); font-weight: 600; }
+        code {
+            background: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.9em;
+            color: var(--accent3);
+        }
+        pre {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+        pre code { background: none; padding: 0; }
+        ul, ol { margin: 12px 0 16px 24px; }
+        li { margin-bottom: 6px; }
+        .checklist { list-style: none; margin-left: 0; }
+        .checklist li { padding-left: 28px; position: relative; }
+        .checklist li::before { content: '☐'; position: absolute; left: 0; color: var(--accent2); }
+        details {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 12px 0;
+        }
+        summary {
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--accent2);
+            user-select: none;
+        }
+        summary:hover { color: var(--accent); }
+        details[open] summary { margin-bottom: 12px; }
+        hr { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+        .wrap-up {
+            background: rgba(63,185,80,0.05);
+            border: 1px solid var(--accent3);
+            border-radius: 12px;
+            padding: 28px;
+            margin-top: 32px;
+        }
+        footer {
+            text-align: center;
+            padding: 40px 24px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border);
+        }
+        @media (max-width: 640px) {
+            .hero h1 { font-size: 1.5rem; }
+            .hero { padding: 40px 16px 28px; }
+            .container { padding: 24px 16px; }
+            .exercise { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="hero">
+    <div class="breadcrumb"><a href="index.html">&larr; Back to Course</a></div>
+    <h1>Lab 1: Data Flow, Context, and LLM-Powered Building</h1>
+    <p>Import community workflows, build with context management, and generate workflows with an LLM</p>
+</div>
+
+<div class="container">
+
+    <div class="meta-card">
+        <p><strong>Skills practiced:</strong> Node-to-node data passing, expressions, context management, importing community workflows, using LLMs to generate and iterate on workflows</p>
+        <p><strong>Prerequisites:</strong> n8n running locally, API keys configured (Gemini or Grok), Lesson 1 talk completed</p>
+    </div>
+
+    <h2>The Scenario</h2>
+    <p>Your team just got access to n8n and everyone's excited, but nobody has real experience building workflows yet. Your manager saw a demo and now wants three things by end of day: a working data pipeline that pulls information from the internet and transforms it, proof that you can grab and customize community workflows instead of building everything from scratch, and a workflow that was generated by an LLM so the team can evaluate whether that's a viable approach going forward. Three exercises, three deliverables.</p>
+
+    <hr>
+
+    <!-- Exercise 1 -->
+    <div class="exercise">
+        <div class="exercise-header">
+            <div class="exercise-num">1</div>
+            <h2>Import, Explore, and Extend a Community Workflow</h2>
+        </div>
+
+        <h3>The Challenge</h3>
+        <p>Go to the n8n workflow template library at <a href="https://n8n.io/workflows/1700-very-quick-quickstart/"><strong>n8n.io/workflows/1700</strong></a> and import the "Very Quick Quickstart" template into your local n8n instance. This workflow demonstrates the basics of data flow between nodes using a training data store and HTTP requests.</p>
+        <p>Once you've imported it and verified it runs, your job is to <strong>extend it</strong> by adding two new nodes that transform the data before it reaches the final output. The specific transformation is up to you, but the extended workflow must modify the data in a visible way (filter it, reshape it, enrich it, or add computed fields).</p>
+        <p>Then, browse <a href="https://n8n.io/workflows/"><strong>n8n.io/workflows</strong></a> and find one additional workflow template that interests you. Import it, run it, and be ready to explain to a neighbor what it does and how data flows through it.</p>
+
+        <h3>Acceptance Criteria</h3>
+        <ul class="checklist">
+            <li>The "Very Quick Quickstart" template (workflow #1700) is imported and runs successfully</li>
+            <li>You've added at least 2 new nodes that transform the output data in a visible way</li>
+            <li>You can click on any node and explain what data it receives and what data it outputs</li>
+            <li>You've imported one additional community workflow and can explain its data flow</li>
+            <li>You can export your modified workflow as JSON (this skill matters for Exercise 3)</li>
+        </ul>
+
+        <h3>Hints</h3>
+        <details>
+            <summary>Hint 1: How to import a template</summary>
+            <p>On the n8n.io/workflows page, click "Use workflow" on any template. You can copy the JSON and paste it into n8n via <strong>Import from URL</strong> or <strong>Import from file</strong> in the n8n menu (the three dots or hamburger menu in the top-right of the canvas).</p>
+        </details>
+        <details>
+            <summary>Hint 2: What nodes to add for transformation</summary>
+            <p>Good candidates: <strong>Edit Fields</strong> (rename or reshape data), <strong>IF</strong> (filter based on a condition), <strong>Code</strong> (write a JavaScript snippet to compute new fields), or <strong>Sort</strong> (reorder items). Pick whichever feels most useful for the data you're working with.</p>
+        </details>
+        <details>
+            <summary>Hint 3: Finding a good second template</summary>
+            <p>Try browsing by category on n8n.io/workflows. Some good beginner-friendly ones:</p>
+            <ul>
+                <li>Workflow <strong>#159</strong> "Send RSS Feed Data to Webhook" — shows filtering and routing</li>
+                <li>Workflow <strong>#4709</strong> "Daily News Digest" — shows schedule triggers and merging</li>
+                <li>Or search for a tool you already use (Slack, Gmail, Google Sheets)</li>
+            </ul>
+        </details>
+
+        <details>
+            <summary>Step-by-step guide (optional)</summary>
+            <ol>
+                <li>Open your browser and go to <code>https://n8n.io/workflows/1700-very-quick-quickstart/</code></li>
+                <li>Click "Use workflow" and copy the workflow JSON</li>
+                <li>In your local n8n (<code>http://localhost:5678</code>), create a new workflow</li>
+                <li>Click the three-dot menu &rarr; "Import from clipboard" and paste the JSON</li>
+                <li>Click "Test workflow" to verify it runs. Inspect the output of each node.</li>
+                <li>Add an <strong>Edit Fields</strong> node after the last data node. Configure it to rename one field or add a new computed field (e.g., add a field called <code>processed</code> set to <code>true</code>)</li>
+                <li>Add a <strong>Filter</strong> or <strong>IF</strong> node to filter out some items based on a condition</li>
+                <li>Run the workflow again and verify your new nodes appear in the execution</li>
+                <li>Go back to n8n.io/workflows, browse templates, pick one that looks interesting, import it</li>
+                <li>Export your modified quickstart workflow: three-dot menu &rarr; "Download" to save the JSON file</li>
+            </ol>
+        </details>
+    </div>
+
+    <!-- Exercise 2 -->
+    <div class="exercise">
+        <div class="exercise-header">
+            <div class="exercise-num">2</div>
+            <h2>Build a Context-Aware Multi-Step Workflow</h2>
+        </div>
+
+        <h3>The Challenge</h3>
+        <p>Build a workflow from scratch that demonstrates proper <strong>context management</strong> across at least 4 nodes. The workflow should:</p>
+        <ol>
+            <li>Start with a trigger (manual trigger is fine)</li>
+            <li>Fetch data from an external source (an API call, RSS feed, or even a static JSON input)</li>
+            <li>Pass that data through at least two processing steps where <strong>each step needs context from a previous step</strong> (not just the immediately preceding node)</li>
+            <li>Produce a final output that combines information from multiple earlier nodes</li>
+        </ol>
+        <p>The key constraint: at least one node must reference data from a node that is <strong>not its direct predecessor</strong>. This forces you to deal with n8n's data scoping.</p>
+
+        <h3>Acceptance Criteria</h3>
+        <ul class="checklist">
+            <li>Workflow has at least 4 nodes (trigger + fetch + 2 processing + output)</li>
+            <li>At least one node uses an expression <code>{{ }}</code> that references data from a non-adjacent previous node</li>
+            <li>The final output combines information from at least two different earlier nodes</li>
+            <li>You can explain why the data scoping required you to handle context explicitly</li>
+        </ul>
+
+        <h3>Hints</h3>
+        <details>
+            <summary>Hint 1: A concrete scenario to build</summary>
+            <p>Try this: Manual Trigger &rarr; HTTP Request (fetch a joke from <code>https://official-joke-api.appspot.com/random_joke</code>) &rarr; Edit Fields (extract setup and punchline plus add a timestamp) &rarr; Code node (combine the joke with the timestamp into a formatted message) &rarr; final Set node that produces a summary referencing the original API response AND the formatted message.</p>
+        </details>
+        <details>
+            <summary>Hint 2: How to reference non-adjacent nodes</summary>
+            <p>In n8n expressions, you can reference any previous node by name using <code>{{ $('NodeName').item.json.fieldName }}</code>. This is how you pull data from a node that isn't your direct input.</p>
+        </details>
+        <details>
+            <summary>Hint 3: The Merge node pattern</summary>
+            <p>If you're struggling with context, the <strong>Merge</strong> node is your friend. It takes two inputs and combines them. You can use it to bring together data from two separate branches or to merge current data with earlier data.</p>
+        </details>
+
+        <details>
+            <summary>Step-by-step guide (optional)</summary>
+            <ol>
+                <li>Create a new workflow. Add a <strong>Manual Trigger</strong> node.</li>
+                <li>Add an <strong>HTTP Request</strong> node. Set it to GET <code>https://official-joke-api.appspot.com/random_joke</code>. Connect it to the trigger. Test it.</li>
+                <li>Add an <strong>Edit Fields</strong> node. Map <code>setup</code> and <code>punchline</code> from the HTTP response, and add a new field <code>fetchedAt</code> set to the expression <code>{{ $now.toISO() }}</code>.</li>
+                <li>Add a <strong>Code</strong> node. Reference the original HTTP response using <code>$('HTTP Request').item.json</code> to get the joke <code>type</code>, and combine it with the current input to produce a <code>formattedMessage</code>.</li>
+                <li>Add a final <strong>Edit Fields</strong> node that produces three fields: <code>originalJokeId</code> (from <code>$('HTTP Request').item.json.id</code>), <code>formattedMessage</code> (from the Code node), and <code>processingSteps</code> set to <code>"fetched → extracted → formatted → summarized"</code>.</li>
+                <li>Run the workflow end to end. Click on each node and trace the data flow.</li>
+            </ol>
+        </details>
+    </div>
+
+    <!-- Exercise 3 -->
+    <div class="exercise">
+        <div class="exercise-header">
+            <div class="exercise-num">3</div>
+            <h2>Generate a Workflow with an LLM</h2>
+        </div>
+
+        <h3>The Challenge</h3>
+        <p>Use an LLM (ChatGPT, Claude, Gemini, or whichever you prefer) to <strong>generate a complete n8n workflow as JSON</strong>, then import it into your local n8n instance, test it, find at least one issue, and prompt the LLM to fix it.</p>
+        <p>The workflow you ask the LLM to generate should do something useful and contain at least 3 nodes. It must be different from what you built in Exercises 1 and 2.</p>
+        <p>The goal isn't to get a perfect workflow on the first try. The goal is to practice the <strong>generation loop</strong>: describe &rarr; generate &rarr; import &rarr; test &rarr; identify issues &rarr; prompt for fix &rarr; re-import.</p>
+
+        <h3>Acceptance Criteria</h3>
+        <ul class="checklist">
+            <li>You prompted an LLM and received a valid n8n workflow JSON in response</li>
+            <li>The generated workflow imports successfully into n8n (even if it doesn't run perfectly yet)</li>
+            <li>You identified at least one issue with the generated workflow</li>
+            <li>You prompted the LLM with the specific issue and received an updated JSON</li>
+            <li>The final version of the workflow runs (or at least progresses further than the first attempt)</li>
+            <li>You saved the final workflow JSON file</li>
+        </ul>
+
+        <h3>Hints</h3>
+        <details>
+            <summary>Hint 1: How to prompt for workflow generation</summary>
+            <p>Be specific. A good prompt includes:</p>
+            <ul>
+                <li>What the workflow should do (step by step)</li>
+                <li>What trigger type to use</li>
+                <li>What node types you want (HTTP Request, Code, Edit Fields, IF, etc.)</li>
+                <li>That you want the output as <strong>valid n8n workflow JSON that can be imported directly</strong></li>
+            </ul>
+            <p>Example: "Generate an n8n workflow JSON that: starts with a manual trigger, makes an HTTP GET request to [some API], filters the results to only include items where [condition], and outputs the filtered results to a Set node with specific fields. Return only the JSON, no explanation."</p>
+        </details>
+        <details>
+            <summary>Hint 2: Common issues with LLM-generated workflows</summary>
+            <p>The most common problems:</p>
+            <ul>
+                <li><strong>Wrong node type names</strong> — the LLM might use a node type that doesn't exist in your n8n version</li>
+                <li><strong>Broken expressions</strong> — the <code>{{ }}</code> syntax might be slightly off</li>
+                <li><strong>Missing credential references</strong> — nodes that need API keys won't have them configured</li>
+                <li><strong>Incorrect JSON structure</strong> — the workflow JSON might not match n8n's expected schema</li>
+            </ul>
+            <p>When you find an issue, copy the error message and the relevant JSON into your next prompt.</p>
+        </details>
+        <details>
+            <summary>Hint 3: A good workflow to generate</summary>
+            <p>If you're not sure what to ask for, try: "Generate an n8n workflow that takes a manual trigger, fetches the top 5 Hacker News stories from the API (<code>https://hacker-news.firebaseio.com/v0/topstories.json</code>), then for each story ID fetches the story details, and collects the titles and URLs into a final summary."</p>
+        </details>
+
+        <details>
+            <summary>Step-by-step guide (optional)</summary>
+            <ol>
+                <li>Open your preferred LLM (browser-based or local)</li>
+                <li>Write a prompt describing the workflow you want. Include: trigger type, node types, what each step does, and explicitly ask for "valid n8n workflow JSON that I can import directly."</li>
+                <li>Copy the JSON response</li>
+                <li>In n8n, create a new workflow &rarr; three-dot menu &rarr; "Import from clipboard"</li>
+                <li>If the import fails, paste the error back to the LLM and ask it to fix the JSON structure</li>
+                <li>If the import succeeds, click "Test workflow" and see what happens</li>
+                <li>Inspect each node's output. Find something that's wrong or not working as expected.</li>
+                <li>Go back to the LLM. Paste the specific issue: "Node X fails with error Y" or "The expression in node X returns undefined." Ask for a targeted fix.</li>
+                <li>Copy the updated JSON, re-import, and test again.</li>
+                <li>Save the final working (or improved) JSON file for reference.</li>
+            </ol>
+        </details>
+    </div>
+
+    <div class="wrap-up">
+        <h2 style="border: none; padding: 0;">Wrap-Up</h2>
+        <p>You've now done the three things that make someone productive in n8n fast: you imported and customized a community workflow (so you never build common patterns from scratch), you built a workflow from scratch with proper context management across nodes (the skill that separates working workflows from broken ones), and you used an LLM to generate and iterate on a workflow (which is going to be how most workflows start in the near future). All three of these workflows are yours to keep, reference, and build on in Lesson 2.</p>
+    </div>
+
+</div>
+
+<footer>
+    <p><a href="index.html">&larr; Back to Course</a></p>
+    <p>n8n Workshop &mdash; Building AI-Powered Workflows &mdash; Sela</p>
+</footer>
+
+</body>
+</html>
