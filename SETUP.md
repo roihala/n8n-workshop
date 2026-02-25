@@ -33,12 +33,30 @@ That's it. n8n will download and start. Open your browser to **http://localhost:
 
 ### Option B: Docker
 
+**Mac / Linux:**
+
 ```bash
 docker run -it --rm \
   --name n8n \
   -p 5678:5678 \
   -v n8n_data:/home/node/.n8n \
   n8nio/n8n
+```
+
+**Windows (PowerShell):**
+
+```powershell
+docker run -it --rm `
+  --name n8n `
+  -p 5678:5678 `
+  -v n8n_data:/home/node/.n8n `
+  n8nio/n8n
+```
+
+**Windows (CMD) — single line:**
+
+```cmd
+docker run -it --rm --name n8n -p 5678:5678 -v n8n_data:/home/node/.n8n n8nio/n8n
 ```
 
 Open your browser to **http://localhost:5678**.
@@ -113,10 +131,13 @@ To import a workflow file into n8n:
 Something else is using port 5678. Either stop that process or run n8n on a different port:
 
 ```bash
-# npx
+# Mac / Linux
 N8N_PORT=5679 npx n8n
 
-# Docker
+# Windows (PowerShell)
+$env:N8N_PORT=5679; npx n8n
+
+# Docker (any OS)
 docker run -it --rm --name n8n -p 5679:5678 -v n8n_data:/home/node/.n8n n8nio/n8n
 ```
 
@@ -133,7 +154,13 @@ n8n start
 
 ### Docker container exits immediately
 
-Make sure Docker Desktop is running. On Mac, check the Docker icon in the menu bar. On Windows, make sure Docker Desktop is open.
+Make sure Docker Desktop is running. On Mac, check the Docker icon in the menu bar. On Windows, make sure Docker Desktop is open and that WSL 2 is enabled (Docker Desktop will prompt you if it's not).
+
+### Windows: "npx is not recognized"
+
+Node.js wasn't added to your PATH. Either:
+- Reinstall Node.js from https://nodejs.org and check "Add to PATH" during install
+- Or use the Node.js Command Prompt that comes with the Node.js installer
 
 ### "Cannot find module" errors
 
@@ -149,8 +176,14 @@ node --version
 Verify the key directly:
 
 ```bash
+# Mac / Linux
 curl -s "https://generativelanguage.googleapis.com/v1/models?key=YOUR_KEY_HERE" | head -5
+
+# Windows (PowerShell)
+(Invoke-WebRequest -Uri "https://generativelanguage.googleapis.com/v1/models?key=YOUR_KEY_HERE").Content | Select-Object -First 5
 ```
+
+Or just paste the URL into your browser with your key — if you see a JSON list of models, the key works.
 
 If you get an error, the key might not be activated yet. Go back to https://aistudio.google.com/apikey and make sure the key is listed as active.
 
