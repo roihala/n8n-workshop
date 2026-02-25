@@ -1,0 +1,225 @@
+{
+  "name": "Exercise 7 - Fix the Multi-Agent System",
+  "nodes": [
+    {
+      "id": "ccc-chat",
+      "name": "Chat Trigger",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [-400, 512],
+      "webhookId": "exercise-7-chat",
+      "parameters": {
+        "public": true,
+        "options": {
+          "title": "Manager Agent (Broken)",
+          "responseMode": "lastNode"
+        },
+        "initialMessages": "Hi! I'm a manager agent. I can help you write emails or analyze data. What do you need?"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "ccc-gemini-mgr",
+      "name": "Google Gemini (Manager)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [-32, 736],
+      "parameters": {
+        "options": {
+          "temperature": 0
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ccc-mem-email",
+      "name": "Memory (Email)",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [784, 720],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "ccc-mem-data",
+      "name": "Memory (Data)",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [1312, 688],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "ccc-gemini-email",
+      "name": "Google Gemini (Email)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [640, 672],
+      "parameters": {
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ccc-gemini-data",
+      "name": "Google Gemini (Data)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [1184, 672],
+      "parameters": {
+        "options": {
+          "temperature": 0
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ccc-data-agent",
+      "name": "DataAgent (Insight Generator)",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "position": [1184, 480],
+      "parameters": {
+        "text": "={{ $fromAI('query', 'The data analysis request', 'string') }}",
+        "options": {
+          "systemMessage": "You are a Data Analysis Agent. You specialize in creating data summaries, explaining metrics, providing business insights, and breaking down analytical concepts. When given a data-related task, provide clear, structured analysis with key findings and recommendations."
+        },
+        "toolDescription": "Writes professional emails and handles communication tasks."
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "ccc-mem-mgr",
+      "name": "Memory (Manager)",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [176, 720],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "ccc-manager",
+      "name": "ManagerAgent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [32, 512],
+      "parameters": {
+        "options": {
+          "systemMessage": "You are an AI Manager that delegates tasks to specialized agents. Your job is to analyze the user's message and decide whether it requires:\n\n- An EmailAgent for writing outreach, follow-up, or templated emails\n\nAlways delegate to the EmailAgent for any task. Send clear instructions about what to produce."
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "ccc-email-agent",
+      "name": "EmailAgent (Communication Specialist)",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "position": [656, 512],
+      "parameters": {
+        "text": "={{ $fromAI('prompt', 'The email writing instructions', 'string') }}",
+        "options": {
+          "systemMessage": "You are a professional Email Writing Assistant. You write polished, effective emails for tasks such as outreach, follow-ups, and client communication. Follow the instruction provided exactly and return only the email content. Use a warm, business-appropriate tone."
+        },
+        "toolDescription": "Handles data analysis, metrics summaries, and insight generation."
+      },
+      "typeVersion": 2.2
+    }
+  ],
+  "connections": {
+    "Memory (Email)": {
+      "ai_memory": [
+        [
+          {
+            "node": "EmailAgent (Communication Specialist)",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory (Data)": {
+      "ai_memory": [
+        [
+          {
+            "node": "DataAgent (Insight Generator)",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory (Manager)": {
+      "ai_memory": [
+        [
+          {
+            "node": "ManagerAgent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini (Manager)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "ManagerAgent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini (Email)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "EmailAgent (Communication Specialist)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini (Data)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "DataAgent (Insight Generator)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Trigger": {
+      "main": [
+        [
+          {
+            "node": "ManagerAgent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DataAgent (Insight Generator)": {
+      "ai_tool": [
+        [
+          {
+            "node": "ManagerAgent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "EmailAgent (Communication Specialist)": {
+      "ai_tool": [
+        [
+          {
+            "node": "ManagerAgent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

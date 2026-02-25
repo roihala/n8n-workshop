@@ -1,0 +1,233 @@
+{
+  "name": "Exercise 5 - Fix the AI Classifier",
+  "nodes": [
+    {
+      "id": "aaa-trigger",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [0, 300],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "aaa-input",
+      "name": "Sample Support Ticket",
+      "type": "n8n-nodes-base.set",
+      "position": [220, 300],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "input-text",
+              "name": "ticketText",
+              "type": "string",
+              "value": "I've been trying to export my data for three days and the button just spins forever. This is blocking our entire team's quarterly report. We're on the Enterprise plan and this needs to be fixed immediately."
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "aaa-gemini",
+      "name": "Google Gemini",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [440, 520],
+      "parameters": {
+        "options": {
+          "temperature": 0
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "aaa-llm",
+      "name": "Classify Ticket",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [440, 300],
+      "parameters": {
+        "text": "={{ $json.ticketText }}",
+        "promptType": "define",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a support ticket classifier. Read the following support ticket and classify it. Tell me what category it falls into and how urgent it is.\n\nTicket:\n{{ $json.ticketText }}"
+            }
+          ]
+        },
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "aaa-parser",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [600, 520],
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"type\": \"bug_report\",\n  \"urgency\": \"critical\",\n  \"description\": \"Brief summary of the issue\"\n}"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "aaa-if",
+      "name": "Is it urgent?",
+      "type": "n8n-nodes-base.if",
+      "position": [700, 300],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "condition-1",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.priority }}",
+              "rightValue": "high"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "aaa-escalate",
+      "name": "Escalate",
+      "type": "n8n-nodes-base.set",
+      "position": [960, 200],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "action-field",
+              "name": "action",
+              "type": "string",
+              "value": "ESCALATE: Route to senior support immediately"
+            },
+            {
+              "id": "ticket-summary",
+              "name": "summary",
+              "type": "string",
+              "value": "={{ $json.description }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "aaa-queue",
+      "name": "Queue",
+      "type": "n8n-nodes-base.set",
+      "position": [960, 400],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "action-field",
+              "name": "action",
+              "type": "string",
+              "value": "QUEUE: Add to standard support queue"
+            },
+            {
+              "id": "ticket-summary",
+              "name": "summary",
+              "type": "string",
+              "value": "={{ $json.description }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Sample Support Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sample Support Ticket": {
+      "main": [
+        [
+          {
+            "node": "Classify Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Classify Ticket",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Classify Ticket",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify Ticket": {
+      "main": [
+        [
+          {
+            "node": "Is it urgent?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is it urgent?": {
+      "main": [
+        [
+          {
+            "node": "Escalate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

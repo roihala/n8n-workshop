@@ -1,0 +1,135 @@
+{
+  "name": "Exercise 6 - Fix the AI Agent's Tools",
+  "nodes": [
+    {
+      "id": "bbb-news",
+      "name": "Get News",
+      "type": "n8n-nodes-base.rssFeedReadTool",
+      "position": [656, 224],
+      "parameters": {
+        "url": "={{ $fromAI('URL', 'An RSS feed URL to fetch news from', 'string') }}",
+        "options": {},
+        "toolDescription": "A general purpose tool that can help with various tasks."
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "bbb-weather",
+      "name": "Get Weather",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [544, 224],
+      "parameters": {
+        "url": "https://api.open-meteo.com/v1/forecast",
+        "options": {},
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "latitude",
+              "value": "={{ $fromAI('latitude', 'Latitude of the location', 'string') }}"
+            },
+            {
+              "name": "longitude",
+              "value": "={{ $fromAI('longitude', 'Longitude of the location', 'string') }}"
+            },
+            {
+              "name": "current",
+              "value": "temperature_2m,windspeed_10m,rain"
+            }
+          ]
+        },
+        "toolDescription": "A general purpose tool that can help with various tasks."
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "bbb-agent",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [192, -64],
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a helpful assistant."
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "bbb-chat",
+      "name": "Chat Trigger",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [-176, -64],
+      "webhookId": "exercise-6-chat",
+      "parameters": {
+        "public": true,
+        "options": {
+          "title": "AI Agent (Broken)",
+          "responseMode": "lastNode"
+        },
+        "initialMessages": "Hi! I can check the weather and get news for you."
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "bbb-gemini",
+      "name": "Google Gemini",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [-176, 224],
+      "parameters": {
+        "options": {
+          "temperature": 0
+        }
+      },
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "Get News": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Weather": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

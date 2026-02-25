@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lab 2 — AI Workflows: Agents, Structure, and Collaboration</title>
+    <title>Lab 2 — AI Intelligence: Prompts, Parsers, and Multi-Agent Orchestration</title>
     <style>
         :root {
             --bg: #0d1117;
@@ -83,14 +83,33 @@
             padding: 0;
             margin: 0;
         }
+        .difficulty {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+        .diff-approachable { background: rgba(63,185,80,0.15); color: var(--accent3); }
+        .diff-challenging { background: rgba(255,109,90,0.15); color: var(--accent); }
+        .diff-advanced { background: rgba(188,63,188,0.15); color: #bc8cff; }
+        .diff-creative { background: rgba(88,166,255,0.15); color: var(--accent2); }
+        .diff-extra-hard { background: rgba(188,63,60,0.2); color: #f85149; }
+        .skill-tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: rgba(88,166,255,0.1);
+            color: var(--accent2);
+        }
         h2 { font-size: 1.6rem; margin-bottom: 16px; border-bottom: 2px solid var(--border); padding-bottom: 8px; }
         h3 { font-size: 1.15rem; margin: 20px 0 10px; color: var(--accent2); }
         p { margin-bottom: 14px; }
         a { color: var(--link); text-decoration: none; }
         a:hover { text-decoration: underline; }
-        table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.95rem; }
-        th, td { text-align: left; padding: 10px 14px; border: 1px solid var(--border); }
-        th { background: var(--code-bg); color: var(--accent2); font-weight: 600; }
         code {
             background: var(--code-bg);
             padding: 2px 6px;
@@ -132,6 +151,28 @@
         summary:hover { color: var(--accent); }
         details[open] summary { margin-bottom: 12px; }
         hr { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+        .download-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(88,166,255,0.1);
+            border: 1px solid var(--accent2);
+            border-radius: 8px;
+            padding: 10px 18px;
+            color: var(--accent2);
+            font-weight: 600;
+            text-decoration: none;
+            margin: 12px 0;
+        }
+        .download-link:hover { background: rgba(88,166,255,0.2); text-decoration: none; }
+        blockquote {
+            border-left: 3px solid var(--accent);
+            padding: 12px 20px;
+            margin: 16px 0;
+            background: rgba(255,109,90,0.05);
+            border-radius: 0 8px 8px 0;
+            color: var(--text-muted);
+        }
         .wrap-up {
             background: rgba(88,166,255,0.05);
             border: 1px solid var(--accent2);
@@ -158,242 +199,281 @@
 
 <div class="hero">
     <div class="breadcrumb"><a href="index.html">&larr; Back to Course</a></div>
-    <h1>Lab 2: AI Workflows — Agents, Structure, and Collaboration</h1>
-    <p>Build AI-powered workflows with structured output, tool-using agents, and multi-agent collaboration</p>
+    <h1>Lab 2: AI Intelligence — Prompts, Parsers, and Multi-Agent Orchestration</h1>
+    <p>Fix broken AI behavior through prompt engineering, output parsers, tool descriptions, and multi-agent routing</p>
 </div>
 
 <div class="container">
 
     <div class="meta-card">
-        <p><strong>Skills practiced:</strong> Connecting AI models as workflow nodes, structured output parsing, building AI agents with tools, multi-agent collaboration, importing and customizing advanced community workflows</p>
-        <p><strong>Prerequisites:</strong> n8n running locally, API keys configured (Gemini or Grok), Lesson 1 completed, Lesson 2 talk completed</p>
+        <p><strong>Skills practiced:</strong> Diagnosing broken AI behavior through prompt engineering, output parser configuration, tool description clarity, and multi-agent routing</p>
+        <p><strong>Prerequisites:</strong> n8n running locally, Lesson 2 talk completed, Gemini API key configured in n8n. For exercise 8: access to an LLM (ChatGPT, Claude, Gemini, or any other)</p>
     </div>
 
     <h2>The Scenario</h2>
-    <p>After the crash course on data flow and context management, your team is ready for the real thing: AI-powered workflows. Your manager has three requests, each one more ambitious than the last. First, build a workflow where an AI node doesn't just produce text but produces structured data that drives downstream decisions. Second, give an AI agent actual tools so it can take actions on its own. Third, build a multi-agent system where AI nodes collaborate, starting from a community workflow and adapting it rather than building from scratch. Three exercises. Let's make the AI actually useful.</p>
+    <p>Same colleague, different mess. This time they left behind AI-powered workflows. The nodes are wired correctly, the connections look fine, and n8n doesn't throw any errors. But the AI behaves wrong: it classifies tickets into categories nobody asked for, it picks the wrong tool, it routes tasks to the wrong agent. The bugs aren't in the plumbing — they're in the intelligence layer. Your job: figure out why the AI is misbehaving and fix the prompts, parsers, and descriptions that control it.</p>
+    <p>Pick the exercises that interest you. They're independent and you can do them in any order.</p>
 
     <hr>
 
-    <!-- Exercise 1 -->
+    <!-- Exercise 5 -->
     <div class="exercise">
         <div class="exercise-header">
-            <div class="exercise-num">1</div>
-            <h2>AI Classification with Structured Output</h2>
+            <div class="exercise-num">5</div>
+            <h2>Fix the AI Classifier</h2>
         </div>
+        <p><span class="difficulty diff-approachable">Approachable</span> <span class="skill-tag">Structured output, output parsers, prompt-to-downstream alignment</span></p>
 
         <h3>The Challenge</h3>
-        <p>Build a workflow that takes unstructured text input (a support message, a customer email, or a product review) and uses an AI node to classify it into a structured format, then routes the workflow based on that classification.</p>
-        <p>Your workflow must:</p>
+        <p>Import <code>exercise_5_structured_output.json</code> from the <code>workflows/</code> folder. This workflow takes a support ticket, sends it to an AI model for classification, parses the AI's response into structured JSON, and then routes the ticket based on urgency.</p>
+
+        <a href="workflows/exercise_5_structured_output.json" download class="download-link">&#11015; Download exercise_5_structured_output.json</a>
+
+        <p>When you run it, the routing will fail. The AI will respond, but the downstream nodes can't use the response correctly. Three issues:</p>
         <ol>
-            <li>Accept input (manual trigger with a hardcoded sample text, or a form trigger)</li>
-            <li>Send the text to an AI node (Gemini or Grok) with a system prompt that instructs it to return <strong>structured JSON output</strong> containing at least: a <code>category</code> field, a <code>priority</code> field (high/medium/low), and a <code>summary</code> field</li>
-            <li>Parse the AI's response into actual usable fields</li>
-            <li>Route to different paths based on the <code>priority</code> value</li>
+            <li>The AI prompt doesn't tell the model what format to respond in</li>
+            <li>The field names in the AI's output don't match what the IF node is checking</li>
+            <li>The prompt doesn't constrain the AI's output values, so the IF condition can't reliably match</li>
         </ol>
-        <p>Start by importing the community template at <a href="https://n8n.io/workflows/9557"><strong>#9557</strong></a> to see how a production workflow handles structured AI output and branching. Study its pattern, then build your own version.</p>
 
         <h3>Acceptance Criteria</h3>
         <ul class="checklist">
-            <li>You've imported and reviewed workflow #9557 to understand the structured output + branching pattern</li>
-            <li>Your own workflow sends text to an AI node and receives structured JSON back (not free-form text)</li>
-            <li>The AI response is parsed into individual fields that downstream nodes can reference</li>
-            <li>An IF node (or Switch node) routes the workflow based on the AI's classification</li>
-            <li>You can run the workflow with two different inputs and show it taking different paths</li>
+            <li>The Classify Ticket node produces valid structured JSON (not free-form text)</li>
+            <li>The IF node correctly routes urgent tickets to "Escalate" and non-urgent to "Queue"</li>
+            <li>The Escalate and Queue nodes display meaningful summary text</li>
+            <li>You can explain all three issues and why each fix was necessary</li>
         </ul>
 
         <h3>Hints</h3>
         <details>
-            <summary>Hint 1: Getting structured output from the AI</summary>
-            <p>The key is in the system prompt. Tell the AI exactly what JSON structure to return:</p>
-<pre><code>You are a support ticket classifier. Analyze the input text and return ONLY a JSON object with these fields:
-- category: one of "bug", "feature_request", "question", "complaint"
-- priority: one of "high", "medium", "low"
-- summary: a one-sentence summary of the issue
-
-Return ONLY the JSON object, no other text.</code></pre>
+            <summary>Hint 1: Why structured output parsing fails</summary>
+            <p>The Structured Output Parser expects the AI to return JSON matching a specific schema. But the AI's system prompt just says "classify it" without specifying the format. Look at the parser's <code>jsonSchemaExample</code> to see what fields it expects, then update the AI's prompt to explicitly request JSON output matching that schema.</p>
         </details>
         <details>
-            <summary>Hint 2: Parsing the JSON response</summary>
-            <p>If the AI returns a JSON string, you need to parse it. Use a <strong>Code</strong> node with <code>JSON.parse()</code> on the AI's output text, or use n8n's <strong>Structured Output Parser</strong> node. The Code node approach is more reliable when the AI occasionally wraps its JSON in markdown code blocks.</p>
+            <summary>Hint 2: The IF node checks a field that doesn't exist</summary>
+            <p>Open the IF node and look at the condition. It checks <code>$json.priority</code>. Now open the Structured Output Parser and look at the schema example. What is the actual field name for urgency? The IF node needs to reference the exact field name the parser produces.</p>
         </details>
         <details>
-            <summary>Hint 3: The routing pattern</summary>
-            <p>After parsing, add an <strong>IF</strong> node with the condition: <code>{{ $json.priority }}</code> equals <code>"high"</code>. The "true" branch handles high-priority items, the "false" branch handles everything else. For a more sophisticated version, use a <strong>Switch</strong> node for three separate paths.</p>
-        </details>
-
-        <details>
-            <summary>Step-by-step guide (optional)</summary>
-            <ol>
-                <li>Import workflow #9557. Click through each node and study how it uses the Structured Output Parser and IF node.</li>
-                <li>Create a new workflow. Add a <strong>Manual Trigger</strong> node.</li>
-                <li>Add an <strong>Edit Fields</strong> node. Create a field called <code>inputText</code> and paste a sample support message, e.g.: <em>"I've been trying to export my data for three days and the button just spins forever. This is blocking our entire team's quarterly report. Please fix this urgently."</em></li>
-                <li>Add a <strong>Basic LLM Chain</strong> node. Select your AI model. Set the system prompt (see Hint 1).</li>
-                <li>Set the user message to <code>{{ $json.inputText }}</code>.</li>
-                <li>Add a <strong>Code</strong> node to parse: <code>const parsed = JSON.parse($input.first().json.text.replace(/```json\n?/g, '').replace(/```\n?/g, '')); return [{ json: parsed }];</code></li>
-                <li>Add an <strong>IF</strong> node. Condition: <code>{{ $json.priority }}</code> equals <code>high</code>.</li>
-                <li>Add placeholder nodes on each branch (e.g., Edit Fields with <code>action: "escalate"</code> on true, <code>action: "queue"</code> on false).</li>
-                <li>Test with the urgent message (should route to "true"). Then change the input to something low-priority like <em>"Just curious, do you support dark mode?"</em> and test again.</li>
-            </ol>
+            <summary>Hint 3: Unconstrained values break routing</summary>
+            <p>Even if the field names match, the IF node checks for a specific string like "high". But the AI might respond with "critical", "urgent", "HIGH", or anything else. The prompt needs to tell the AI exactly which values are allowed: "urgency must be one of: high, medium, low".</p>
         </details>
     </div>
 
-    <!-- Exercise 2 -->
+    <!-- Exercise 6 -->
     <div class="exercise">
         <div class="exercise-header">
-            <div class="exercise-num">2</div>
-            <h2>Build an AI Agent with Tools</h2>
+            <div class="exercise-num">6</div>
+            <h2>Fix the AI Agent's Tools</h2>
         </div>
+        <p><span class="difficulty diff-challenging">Challenging</span> <span class="skill-tag">Tool descriptions, system prompts, agent memory</span></p>
 
         <h3>The Challenge</h3>
-        <p>Build a workflow using n8n's <strong>AI Agent</strong> node where the agent has access to at least two tools and decides which ones to use based on the input.</p>
-        <p>Start by importing <a href="https://n8n.io/workflows/6270"><strong>#6270</strong></a> — n8n's official "Build Your First AI Agent" template. Get it running, study how the agent selects tools, then extend it with your own tool or replace existing tools with ones more relevant to your work.</p>
-        <p>Your final workflow must have:</p>
+        <p>Import <code>exercise_6_agent_tools.json</code> from the <code>workflows/</code> folder. This is a chat-based AI Agent that should be able to check the weather for any city and fetch news from RSS feeds.</p>
+
+        <a href="workflows/exercise_6_agent_tools.json" download class="download-link">&#11015; Download exercise_6_agent_tools.json</a>
+
+        <p>When you chat with it, the agent will struggle. It might refuse to use its tools, use the wrong one, or give vague responses. The wiring is correct. Three issues:</p>
         <ol>
-            <li>A chat trigger or manual trigger</li>
-            <li>An AI Agent node with a clear system prompt</li>
-            <li>At least two tool nodes connected to the agent</li>
-            <li>Conversation memory so the agent can reference previous messages</li>
+            <li>Both tool descriptions are identical and vague — the agent can't tell them apart</li>
+            <li>The system prompt gives the agent no guidance about its capabilities</li>
+            <li>The agent has no memory, so it forgets the conversation between messages</li>
         </ol>
-        <p>The test: give the agent two different inputs that should trigger different tools, and verify it chooses correctly.</p>
 
         <h3>Acceptance Criteria</h3>
         <ul class="checklist">
-            <li>Workflow #6270 ("Build Your First AI Agent") is imported and running</li>
-            <li>You understand how tool nodes connect to the AI Agent node</li>
-            <li>Your final workflow has an AI Agent with at least 2 tools and conversation memory</li>
-            <li>You can demonstrate the agent choosing different tools for different inputs</li>
-            <li>The agent's system prompt clearly defines its role and when to use each tool</li>
+            <li>Ask "What's the weather in Tel Aviv?" — the agent uses the Get Weather tool</li>
+            <li>Ask "Get me the latest tech news" — the agent uses the Get News tool</li>
+            <li>Ask a follow-up like "What about London?" — the agent remembers context</li>
+            <li>You can explain how each fix changed the agent's behavior</li>
         </ul>
 
         <h3>Hints</h3>
         <details>
-            <summary>Hint 1: Understanding the Agent + Tools pattern</summary>
-            <p>The AI Agent node works like this: you connect tool nodes to the agent's "tools" input. Each tool has a name and description. When the agent receives a message, it reads the tool descriptions and decides which tool(s) to call. The tool descriptions are critical — if they're vague, the agent picks wrong.</p>
+            <summary>Hint 1: Why tool descriptions matter</summary>
+            <p>When an AI Agent has multiple tools, it reads each tool's <code>toolDescription</code> field to decide which one to use. If both tools say "A general purpose tool," the agent has no basis for choosing. Each tool needs a clear, specific description.</p>
         </details>
         <details>
-            <summary>Hint 2: Good tool combinations</summary>
-            <ul>
-                <li><strong>HTTP Request tool</strong> (for fetching web data) + <strong>Code tool</strong> (for calculations)</li>
-                <li><strong>Wikipedia tool</strong> (for factual lookups) + <strong>Calculator tool</strong> (for math)</li>
-                <li>Two <strong>HTTP Request tools</strong> pointed at different APIs with different descriptions</li>
-            </ul>
-            <p>The key: tools should be clearly distinct so you can verify the agent's choice.</p>
+            <summary>Hint 2: The system prompt is too vague</summary>
+            <p>The agent's system prompt is just "You are a helpful assistant." It doesn't mention weather, news, or any specific capabilities. A good system prompt tells the agent what it can do and how to use its tools.</p>
         </details>
         <details>
-            <summary>Hint 3: Good test inputs</summary>
-            <p>If your agent has a weather tool and a calculator tool:</p>
-            <ul>
-                <li>"What's the weather in Tel Aviv?" &rarr; should trigger the weather tool</li>
-                <li>"What's 15% tip on a 230 shekel dinner?" &rarr; should trigger the calculator tool</li>
-                <li>"If it's above 30 degrees in Tel Aviv, calculate how many liters of water I need for a 5km run" &rarr; might trigger both</li>
-            </ul>
-        </details>
-
-        <details>
-            <summary>Step-by-step guide (optional)</summary>
-            <ol>
-                <li>Import workflow #6270 from n8n.io/workflows.</li>
-                <li>Open the AI Agent node and study: system prompt, model, connected tools.</li>
-                <li>Click on each tool node to see its name and description.</li>
-                <li>Test with a message that should trigger one specific tool. Check which tool it chose.</li>
-                <li>Modify the workflow: add a new tool or replace an existing one. Good options:
-                    <ul>
-                        <li>Add an <strong>HTTP Request</strong> tool pointed at a public API (e.g., <code>https://api.exchangerate-api.com/v4/latest/USD</code>)</li>
-                        <li>Add a <strong>Code</strong> tool that performs a specific computation</li>
-                    </ul>
-                </li>
-                <li>Update the agent's system prompt to mention the new tool.</li>
-                <li>Add a <strong>Window Buffer Memory</strong> node if there isn't one. Connect it to the agent's "memory" input.</li>
-                <li>Test with input A (tool 1) then input B (tool 2).</li>
-                <li>Test with a third input referencing previous conversation: "Do that again but with different numbers."</li>
-            </ol>
+            <summary>Hint 3: Adding memory</summary>
+            <p>Compare to the original (<code>workflows/originals/6270_first_ai_agent.json</code>). It has a "Conversation Memory" node connected to the agent. This exercise is missing that node. Add a Window Buffer Memory node and connect it to the agent's <code>ai_memory</code> input.</p>
         </details>
     </div>
 
-    <!-- Exercise 3 -->
+    <!-- Exercise 7 -->
     <div class="exercise">
         <div class="exercise-header">
-            <div class="exercise-num">3</div>
-            <h2>Import and Customize a Multi-Agent Workflow</h2>
+            <div class="exercise-num">7</div>
+            <h2>Fix the Multi-Agent System</h2>
         </div>
+        <p><span class="difficulty diff-advanced">Advanced</span> <span class="skill-tag">Multi-agent delegation, tool description routing, supervisor patterns</span></p>
 
         <h3>The Challenge</h3>
-        <p>Import a multi-agent community workflow, get it running, understand the collaboration pattern, and customize it for a different use case.</p>
-        <p>Go to <a href="https://n8n.io/workflows/7158"><strong>#7158</strong></a> and import the "Beginner Manager Agent with Sub-Agent Tools" template. This workflow has a Manager Agent that evaluates input and delegates to specialized sub-agents (EmailAgent and DataAgent).</p>
-        <p>Your job:</p>
+        <p>Import <code>exercise_7_multi_agent.json</code> from the <code>workflows/</code> folder. This is a Manager Agent that delegates to two specialized sub-agents: an EmailAgent and a DataAgent.</p>
+
+        <a href="workflows/exercise_7_multi_agent.json" download class="download-link">&#11015; Download exercise_7_multi_agent.json</a>
+
+        <p>Right now, the manager only ever uses one agent, and when it does delegate, the results are wrong. Three issues that combine:</p>
         <ol>
-            <li>Import it and get it running</li>
-            <li>Understand the <strong>supervisor-delegates</strong> pattern: how the manager decides which sub-agent to invoke</li>
-            <li>Customize it by modifying an existing sub-agent's specialty or adding a third sub-agent</li>
-            <li>Test with at least two different inputs that trigger different sub-agents</li>
+            <li>The tool descriptions are swapped — EmailAgent's description says data analysis, and vice versa</li>
+            <li>The manager's system prompt only mentions the EmailAgent — it never tells the manager the DataAgent exists</li>
+            <li>The combined effect: the manager always delegates to the EmailAgent</li>
         </ol>
-        <p>If you finish early, explore these additional multi-agent templates:</p>
+
+        <h3>Acceptance Criteria</h3>
+        <ul class="checklist">
+            <li>Ask "Write a follow-up email to a client" — manager delegates to EmailAgent</li>
+            <li>Ask "Summarize key business metrics for Q3" — manager delegates to DataAgent</li>
+            <li>The manager correctly chooses based on the request</li>
+            <li>You can explain all three issues and how they interact</li>
+        </ul>
+
+        <h3>Hints</h3>
+        <details>
+            <summary>Hint 1: Start with the tool descriptions</summary>
+            <p>Click on each sub-agent tool node and read their <code>toolDescription</code> fields. Then read their <code>systemMessage</code> fields. Do the descriptions match what the agents actually do?</p>
+        </details>
+        <details>
+            <summary>Hint 2: The manager doesn't know the DataAgent exists</summary>
+            <p>The ManagerAgent's system prompt says "Always delegate to the EmailAgent for any task." Even though the DataAgent is connected, the instructions tell it to ignore everything except the EmailAgent.</p>
+        </details>
+        <details>
+            <summary>Hint 3: Compare with the working version</summary>
+            <p>Open <code>workflows/originals/7158_manager_agent_subagents.json</code> and compare side by side. Look at tool descriptions, the manager's system message, and how they align.</p>
+        </details>
+    </div>
+
+    <!-- Exercise 8 -->
+    <div class="exercise">
+        <div class="exercise-header">
+            <div class="exercise-num">8</div>
+            <h2>Generate an AI Workflow with an LLM</h2>
+        </div>
+        <p><span class="difficulty diff-creative">Creative</span> <span class="skill-tag">LLM workflow generation, AI node configuration</span></p>
+
+        <h3>The Challenge</h3>
+        <p>Use an LLM to <strong>generate a complete AI-powered n8n workflow as JSON</strong>. Then import it, test it, find the issues, and prompt the LLM to fix them.</p>
+
+        <p>Here's the spec:</p>
+        <blockquote>
+            <strong>"Build an n8n workflow that:</strong>
+            <ol>
+                <li>Starts with a Chat Trigger (the built-in n8n chat interface)</li>
+                <li>Has an AI Agent node connected to a Google Gemini model</li>
+                <li>Has a Window Buffer Memory node for conversation history</li>
+                <li>Has an HTTP Request Tool that calls the Open-Meteo weather API with dynamic <code>$fromAI()</code> expressions for latitude and longitude</li>
+                <li>The agent's system prompt: "You are a weather assistant. Use the Get Weather tool with city coordinates."</li>
+            </ol>
+            <p>Return only valid n8n workflow JSON. No explanation."</p>
+        </blockquote>
+
+        <h3>Acceptance Criteria</h3>
+        <ul class="checklist">
+            <li>You prompted an LLM and received n8n workflow JSON</li>
+            <li>The JSON imports into n8n</li>
+            <li>You identified at least one issue</li>
+            <li>You prompted the LLM with the specific issue and got an updated version</li>
+            <li>The final workflow has a working chat interface for weather queries</li>
+            <li>You saved the final workflow JSON</li>
+        </ul>
+
+        <h3>Hints</h3>
+        <details>
+            <summary>Hint 1: Structuring your prompt for AI workflows</summary>
+            <p>Be specific about node types:</p>
+            <ul>
+                <li><code>@n8n/n8n-nodes-langchain.chatTrigger</code>, <code>@n8n/n8n-nodes-langchain.agent</code></li>
+                <li><code>@n8n/n8n-nodes-langchain.lmChatGoogleGemini</code>, <code>@n8n/n8n-nodes-langchain.memoryBufferWindow</code></li>
+                <li>Connection types: <code>ai_languageModel</code>, <code>ai_memory</code>, <code>ai_tool</code> (not <code>main</code>)</li>
+            </ul>
+        </details>
+        <details>
+            <summary>Hint 2: Common issues with LLM-generated AI workflows</summary>
+            <ul>
+                <li><strong>Wrong connection types</strong> — connects Gemini via <code>main</code> instead of <code>ai_languageModel</code></li>
+                <li><strong>Missing <code>$fromAI()</code></strong> — tool parameters are hardcoded</li>
+                <li><strong>Wrong node type strings</strong> — invents names that don't exist</li>
+                <li><strong>No <code>typeVersion</code></strong> — every n8n node needs this field</li>
+            </ul>
+        </details>
+        <details>
+            <summary>Hint 3: Use a working workflow as a reference</summary>
+            <p>Open <code>workflows/originals/6270_first_ai_agent.json</code>, paste it into the LLM, and say "Use this as a reference to generate a new workflow that does [your spec]. Match the structure exactly."</p>
+        </details>
+    </div>
+
+    <!-- Exercise 10 -->
+    <div class="exercise">
+        <div class="exercise-header">
+            <div class="exercise-num">10</div>
+            <h2>Fix the AI Customer Service Pipeline (Extra Hard)</h2>
+        </div>
+        <p><span class="difficulty diff-extra-hard">Extra Hard</span> <span class="skill-tag">Multi-stage AI pipeline, classifier-router alignment, cross-layer bugs</span></p>
+
+        <h3>The Challenge</h3>
+        <p>Import <code>exercise_10_ai_service_pipeline.json</code> from the <code>workflows/</code> folder. This is a full AI customer service pipeline: a classifier analyzes incoming messages, a router sends them to the right specialist (refund, technical, or general), and each specialist generates a tailored response.</p>
+
+        <a href="workflows/exercise_10_ai_service_pipeline.json" download class="download-link">&#11015; Download exercise_10_ai_service_pipeline.json</a>
+
+        <p>The architecture:</p>
+<pre><code>Chat → Classify Intent (LLM + Parser) → Route by Intent (Switch)
+  → Refund path:    Handle Refund (LLM Chain)
+  → Technical path:  Handle Technical (AI Agent + Order Lookup tool)
+  → General path:    Handle General (LLM Chain)</code></pre>
+
+        <p>A 13-node workflow with <strong>five bugs that span multiple layers</strong>. Test with:</p>
         <ul>
-            <li><a href="https://n8n.io/workflows/9545">#9545</a> — Four specialist agents analyze a landing page from different angles</li>
-            <li><a href="https://n8n.io/workflows/3425">#3425</a> — Supervisor agent routing to three specialized data analyst sub-agents</li>
+            <li>"I want a refund for order #1234, the product arrived damaged" &rarr; Refund specialist</li>
+            <li>"My device keeps crashing when I try to update the firmware" &rarr; Technical specialist</li>
+            <li>"What are your business hours?" &rarr; General specialist</li>
         </ul>
 
         <h3>Acceptance Criteria</h3>
         <ul class="checklist">
-            <li>Workflow #7158 is imported and runs</li>
-            <li>You can explain how the Manager Agent decides which sub-agent gets the task</li>
-            <li>You've customized the workflow: modified an existing sub-agent OR added a third one</li>
-            <li>You can demonstrate the manager routing different inputs to different sub-agents</li>
-            <li>You can describe one thing you'd change to make this pattern more robust for production</li>
+            <li>The classifier produces structured JSON with correct field names</li>
+            <li>The Switch node routes messages to the correct specialist</li>
+            <li>Refund specialist responds with refund-appropriate language</li>
+            <li>Technical specialist responds with consistent, factual troubleshooting</li>
+            <li>General specialist responds to general questions</li>
+            <li>You can explain all five bugs and how they interact</li>
         </ul>
 
         <h3>Hints</h3>
         <details>
-            <summary>Hint 1: Understanding the supervisor pattern</summary>
-            <p>The Manager Agent's system prompt is where the routing logic lives. It describes each sub-agent's capabilities and tells the manager when to delegate to each one. The sub-agents are connected as <strong>Agent Tool</strong> nodes — from the manager's perspective, each sub-agent is just another tool it can call.</p>
+            <summary>Hint 1: Messages always fall through to the General path</summary>
+            <p>Two bugs combine. The classifier prompt says "billing", "tech_support", "other" but the Switch expects "refund" and "technical". Also, the Switch checks <code>$json.category</code> but the parser schema uses <code>intent</code>. Fix both.</p>
         </details>
         <details>
-            <summary>Hint 2: Adding a third sub-agent</summary>
+            <summary>Hint 2: The Refund specialist talks like tech support</summary>
+            <p>The Handle Refund node's system prompt says "You are a technical support specialist." Copy-paste error. Replace with refund-appropriate language.</p>
+        </details>
+        <details>
+            <summary>Hint 3: The Technical specialist's tool is mislabeled</summary>
+            <p>The "Order Lookup" tool's description says "process refund requests" instead of technical troubleshooting. The agent reads this to decide when to use the tool.</p>
+        </details>
+        <details>
+            <summary>Hint 4: The Technical specialist gives wild responses</summary>
+            <p>Check the Gemini model's <code>temperature</code>: 0.9 is too high for factual technical support. Set it close to 0.</p>
+        </details>
+        <details>
+            <summary>Hint 5: The five bugs summarized</summary>
             <ol>
-                <li>Add a new <strong>AI Agent</strong> node. Give it a focused system prompt (e.g., "You are a ResearchAgent. You find and summarize information about any topic.")</li>
-                <li>Wrap it in an <strong>Agent Tool</strong> node (or connect it as a tool to the manager)</li>
-                <li>Update the Manager Agent's system prompt to include the new sub-agent</li>
-                <li>Give the tool a clear name and description</li>
-            </ol>
-        </details>
-        <details>
-            <summary>Hint 3: Testing multi-agent routing</summary>
-            <p>Key test inputs should be unambiguous:</p>
-            <ul>
-                <li>"Draft a follow-up email to the client about the project deadline" &rarr; EmailAgent</li>
-                <li>"How many rows are in the sales spreadsheet from last month?" &rarr; DataAgent</li>
-                <li>"Find out what our competitors announced this week" &rarr; ResearchAgent</li>
-            </ul>
-            <p>Watch the execution to see the manager's reasoning and which sub-agent it calls.</p>
-        </details>
-
-        <details>
-            <summary>Step-by-step guide (optional)</summary>
-            <ol>
-                <li>Import workflow #7158 from n8n.io/workflows.</li>
-                <li>Identify the three layers: chat/trigger input, Manager Agent, sub-agent tools.</li>
-                <li>Read the Manager Agent's system prompt — this is where routing logic is defined.</li>
-                <li>Click on each sub-agent tool. Read their system prompts.</li>
-                <li>Test with an email-related request. Watch the execution trace.</li>
-                <li>Test with a data-related request. Verify correct routing.</li>
-                <li>Add a third sub-agent:
-                    <ol type="a">
-                        <li>Add a new <strong>AI Agent</strong> node with a clear specialty in its system prompt.</li>
-                        <li>Connect your LLM model to it.</li>
-                        <li>Connect it as a tool to the Manager Agent (follow the existing pattern).</li>
-                        <li>Update the Manager's system prompt to include the new sub-agent.</li>
-                    </ol>
-                </li>
-                <li>Test with an input matching the new sub-agent's specialty.</li>
-                <li>Test with an ambiguous input. If it routes wrong, refine the tool descriptions.</li>
-                <li>Think about production: what happens if the manager picks the wrong agent? How would you add a fallback?</li>
+                <li><strong>Classifier &rarr; Router value mismatch:</strong> "billing, tech_support, other" vs "refund, technical"</li>
+                <li><strong>Classifier &rarr; Router field mismatch:</strong> <code>intent</code> vs <code>category</code></li>
+                <li><strong>Refund prompt:</strong> Copy-paste error — has technical support prompt</li>
+                <li><strong>Technical tool description:</strong> Describes refund instead of troubleshooting</li>
+                <li><strong>Technical temperature:</strong> 0.9 &rarr; should be ~0</li>
             </ol>
         </details>
     </div>
 
     <div class="wrap-up">
         <h2 style="border: none; padding: 0;">Wrap-Up</h2>
-        <p>You've now built the three patterns that make AI workflows actually useful in production: structured output parsing that turns AI responses into actionable data (Exercise 1), an agent with tools that can take real actions autonomously (Exercise 2), and a multi-agent system where a supervisor coordinates specialized agents (Exercise 3). And you did it by standing on the shoulders of the n8n community — importing templates, studying their patterns, and then customizing them for your own needs. That's exactly how this is done in practice.</p>
+        <p>If you completed exercises 5 through 7, you've built the core diagnostic skill for AI workflows: understanding that the intelligence lives in configuration, not wiring. The nodes can be perfectly connected, but the AI does the wrong thing because a prompt is vague, a description is misleading, or a field name doesn't match.</p>
+        <p>If you completed exercise 8, you've extended the LLM generation loop into the AI node ecosystem. The key insight: including a working reference workflow in your prompt dramatically improves output.</p>
+        <p>If you completed exercise 10, you've debugged the kind of multi-stage AI pipeline that actually exists in production: bugs in one layer cascade into wrong behavior in the next.</p>
     </div>
 
 </div>

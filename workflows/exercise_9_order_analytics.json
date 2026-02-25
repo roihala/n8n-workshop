@@ -1,0 +1,234 @@
+{
+  "name": "Exercise 9 - Fix the Order Analytics Pipeline",
+  "nodes": [
+    {
+      "id": "ord-trigger",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [0, 300],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "ord-data",
+      "name": "1. Sample Orders",
+      "type": "n8n-nodes-base.code",
+      "position": [220, 300],
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    data: {\n      orders: [\n        { id: 'ORD-001', customer: 'Alice', item: 'Wireless Keyboard', unitPrice: 89.99, qty: 2, date: '2024-12-15' },\n        { id: 'ORD-002', customer: 'Bob', item: 'USB-C Hub', unitPrice: 34.50, qty: 1, date: '2024-12-09' },\n        { id: 'ORD-003', customer: 'Charlie', item: 'Monitor Stand', unitPrice: 120.00, qty: 1, date: '2024-12-22' },\n        { id: 'ORD-004', customer: 'Diana', item: 'Webcam HD', unitPrice: 65.00, qty: 3, date: '2024-12-03' },\n        { id: 'ORD-005', customer: 'Eve', item: 'Mouse Pad XL', unitPrice: 22.99, qty: 4, date: '2024-12-18' }\n      ]\n    }\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ord-split",
+      "name": "2. Split Into Orders",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [440, 300],
+      "parameters": {
+        "fieldToSplitOut": "orders",
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ord-calc",
+      "name": "3. Calculate Totals",
+      "type": "n8n-nodes-base.code",
+      "position": [660, 300],
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const order = item.json;\n  results.push({\n    json: {\n      ...order,\n      total: order.price * order.quantity\n    }\n  });\n}\n\nreturn results;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ord-filter",
+      "name": "4. High Value?",
+      "type": "n8n-nodes-base.if",
+      "position": [880, 300],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-value",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.total }}",
+              "rightValue": "100"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ord-tag-premium",
+      "name": "5a. Tag as Premium",
+      "type": "n8n-nodes-base.set",
+      "position": [1100, 200],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "tier-field",
+              "name": "tier",
+              "type": "string",
+              "value": "premium"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "ord-tag-standard",
+      "name": "5b. Tag as Standard",
+      "type": "n8n-nodes-base.set",
+      "position": [1100, 400],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "tier-field",
+              "name": "tier",
+              "type": "string",
+              "value": "standard"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "ord-merge",
+      "name": "6. Combine All Orders",
+      "type": "n8n-nodes-base.merge",
+      "position": [1320, 300],
+      "parameters": {
+        "mode": "combineBySql",
+        "query": "SELECT * FROM input1 INNER JOIN input2 ON input1.id = input2.id"
+      },
+      "typeVersion": 3.1
+    },
+    {
+      "id": "ord-report",
+      "name": "7. Generate Report",
+      "type": "n8n-nodes-base.code",
+      "position": [1540, 300],
+      "parameters": {
+        "jsCode": "const orders = $input.all();\nconst premiumOrders = $('Tag Premium').all();\n\nconst totalRevenue = orders.reduce((sum, item) => sum + item.json.total, 0);\nconst avgOrder = totalRevenue / orders.length;\n\nreturn [{\n  json: {\n    report: 'Order Analytics Summary',\n    totalOrders: orders.length,\n    premiumOrders: premiumOrders.length,\n    totalRevenue: totalRevenue.toFixed(2),\n    averageOrderValue: avgOrder.toFixed(2),\n    generatedAt: new Date().toISOString()\n  }\n}];"
+      },
+      "typeVersion": 2
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "1. Sample Orders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1. Sample Orders": {
+      "main": [
+        [
+          {
+            "node": "2. Split Into Orders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. Split Into Orders": {
+      "main": [
+        [
+          {
+            "node": "3. Calculate Totals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3. Calculate Totals": {
+      "main": [
+        [
+          {
+            "node": "4. High Value?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4. High Value?": {
+      "main": [
+        [
+          {
+            "node": "5a. Tag as Premium",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "5b. Tag as Standard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "5a. Tag as Premium": {
+      "main": [
+        [
+          {
+            "node": "6. Combine All Orders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "5b. Tag as Standard": {
+      "main": [
+        [
+          {
+            "node": "6. Combine All Orders",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "6. Combine All Orders": {
+      "main": [
+        [
+          {
+            "node": "7. Generate Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

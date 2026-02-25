@@ -1,0 +1,348 @@
+{
+  "name": "Exercise 10 - Fix the AI Customer Service Pipeline",
+  "nodes": [
+    {
+      "id": "svc-chat",
+      "name": "Chat Trigger",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [-400, 300],
+      "webhookId": "exercise-10-chat",
+      "parameters": {
+        "public": true,
+        "options": {
+          "title": "Customer Service Bot (Broken)",
+          "responseMode": "lastNode"
+        },
+        "initialMessages": "Hi! I'm your customer service assistant. I can help with refunds, technical issues, or general questions. How can I help?"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "svc-gemini-classify",
+      "name": "Gemini (Classifier)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [-80, 520],
+      "parameters": {
+        "options": {
+          "temperature": 0
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "svc-parser",
+      "name": "Intent Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [80, 520],
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"intent\": \"refund\",\n  \"urgency\": \"high\",\n  \"summary\": \"Customer wants a refund for defective product\"\n}"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "svc-classify",
+      "name": "Classify Intent",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [-80, 300],
+      "parameters": {
+        "text": "={{ $json.chatInput }}",
+        "promptType": "define",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a customer service classifier. Analyze the customer message and classify it.\n\nCategories: billing, tech_support, other\nUrgency levels: high, medium, low\n\nCustomer message:\n{{ $json.chatInput }}"
+            }
+          ]
+        },
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "svc-switch",
+      "name": "Route by Intent",
+      "type": "n8n-nodes-base.switch",
+      "position": [200, 300],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "refund",
+              "conditions": {
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "rule-refund",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "refund"
+                  }
+                ]
+              }
+            },
+            {
+              "outputKey": "technical",
+              "conditions": {
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "rule-tech",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "technical"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "svc-gemini-refund",
+      "name": "Gemini (Refund)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [560, 100],
+      "parameters": {
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "svc-refund",
+      "name": "Handle Refund",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [420, 0],
+      "parameters": {
+        "text": "={{ $json.summary }}",
+        "promptType": "define",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a technical support specialist. Help the customer troubleshoot their technical issue step by step.\n\nCustomer issue: {{ $json.summary }}\n\nProvide a clear, step-by-step troubleshooting response."
+            }
+          ]
+        },
+        "hasOutputParser": false
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "svc-gemini-tech",
+      "name": "Gemini (Technical)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [560, 420],
+      "parameters": {
+        "options": {
+          "temperature": 0.9
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "svc-mem-tech",
+      "name": "Memory (Technical)",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [700, 520],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "svc-tool-lookup",
+      "name": "Order Lookup",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "position": [840, 420],
+      "parameters": {
+        "url": "=https://jsonplaceholder.typicode.com/posts/{{ $fromAI('orderId', 'The order ID number to look up', 'number') }}",
+        "options": {},
+        "toolDescription": "Look up customer refund status and process refund requests."
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "svc-technical",
+      "name": "Handle Technical",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [420, 300],
+      "parameters": {
+        "text": "={{ $json.summary }}",
+        "options": {
+          "systemMessage": "You are a technical support specialist. You help customers troubleshoot technical issues with their products. When the customer mentions an order number, use the Order Lookup tool to find relevant information."
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "svc-gemini-general",
+      "name": "Gemini (General)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [560, 700],
+      "parameters": {
+        "options": {
+          "temperature": 0.5
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "svc-general",
+      "name": "Handle General",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [420, 600],
+      "parameters": {
+        "text": "={{ $json.summary }}",
+        "promptType": "define",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a friendly customer service representative. Help the customer with their general inquiry.\n\nCustomer message: {{ $json.summary }}\n\nProvide a helpful, friendly response."
+            }
+          ]
+        },
+        "hasOutputParser": false
+      },
+      "typeVersion": 1.6
+    }
+  ],
+  "connections": {
+    "Chat Trigger": {
+      "main": [
+        [
+          {
+            "node": "Classify Intent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini (Classifier)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Classify Intent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Intent Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Classify Intent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify Intent": {
+      "main": [
+        [
+          {
+            "node": "Route by Intent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Intent": {
+      "main": [
+        [
+          {
+            "node": "Handle Refund",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle Technical",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle General",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini (Refund)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Handle Refund",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini (Technical)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Handle Technical",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory (Technical)": {
+      "ai_memory": [
+        [
+          {
+            "node": "Handle Technical",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Order Lookup": {
+      "ai_tool": [
+        [
+          {
+            "node": "Handle Technical",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini (General)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Handle General",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

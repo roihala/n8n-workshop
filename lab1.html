@@ -95,6 +95,7 @@
         .diff-challenging { background: rgba(255,109,90,0.15); color: var(--accent); }
         .diff-creative { background: rgba(88,166,255,0.15); color: var(--accent2); }
         .diff-investigative { background: rgba(210,153,34,0.15); color: #d29922; }
+        .diff-extra-hard { background: rgba(188,63,60,0.2); color: #f85149; }
         .skill-tag {
             display: inline-block;
             padding: 3px 10px;
@@ -106,13 +107,9 @@
         }
         h2 { font-size: 1.6rem; margin-bottom: 16px; border-bottom: 2px solid var(--border); padding-bottom: 8px; }
         h3 { font-size: 1.15rem; margin: 20px 0 10px; color: var(--accent2); }
-        h4 { font-size: 1.05rem; margin: 14px 0 8px; color: var(--text); }
         p { margin-bottom: 14px; }
         a { color: var(--link); text-decoration: none; }
         a:hover { text-decoration: underline; }
-        table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.95rem; }
-        th, td { text-align: left; padding: 10px 14px; border: 1px solid var(--border); }
-        th { background: var(--code-bg); color: var(--accent2); font-weight: 600; }
         code {
             background: var(--code-bg);
             padding: 2px 6px;
@@ -168,6 +165,14 @@
             margin: 12px 0;
         }
         .download-link:hover { background: rgba(63,185,80,0.2); text-decoration: none; }
+        blockquote {
+            border-left: 3px solid var(--accent);
+            padding: 12px 20px;
+            margin: 16px 0;
+            background: rgba(255,109,90,0.05);
+            border-radius: 0 8px 8px 0;
+            color: var(--text-muted);
+        }
         .wrap-up {
             background: rgba(63,185,80,0.05);
             border: 1px solid var(--accent3);
@@ -311,7 +316,7 @@
             <div class="exercise-num">3</div>
             <h2>Generate a Workflow with an LLM</h2>
         </div>
-        <p><span class="difficulty diff-creative">Creative</span> <span class="skill-tag">LLM workflow generation, prompt engineering, the generate &rarr; test &rarr; fix loop</span></p>
+        <p><span class="difficulty diff-creative">Creative</span> <span class="skill-tag">LLM workflow generation, prompt engineering</span></p>
 
         <h3>The Challenge</h3>
         <p>Use an LLM (ChatGPT, Claude, Gemini, or whichever you prefer) to <strong>generate a complete n8n workflow as JSON</strong>. Then import it into n8n, test it, find the issues, and prompt the LLM to fix them.</p>
@@ -325,12 +330,10 @@
                 <li>Fetches a random programming joke from <code>https://v2.jokeapi.dev/joke/Programming?blacklistFlags=nsfw,religious,political,racist,sexist,explicit&amp;type=single</code></li>
                 <li>Fetches a random inspirational quote from <code>https://zenquotes.io/api/random</code></li>
                 <li>Combines both results into a single item using a Merge node</li>
-                <li>Produces a final output with three fields: <code>joke</code> (the joke text), <code>quote</code> (the quote text), <code>author</code> (the quote author), and <code>timestamp</code> (current time)</li>
+                <li>Produces a final output with three fields: <code>joke</code>, <code>quote</code>, <code>author</code>, and <code>timestamp</code></li>
             </ol>
             <p>Return only valid n8n workflow JSON that can be imported directly. No explanation, just the JSON."</p>
         </blockquote>
-
-        <p>The goal isn't to get it perfect on the first try. The goal is to practice the loop: describe &rarr; generate &rarr; import &rarr; test &rarr; find issue &rarr; ask LLM to fix &rarr; re-import.</p>
 
         <h3>Acceptance Criteria</h3>
         <ul class="checklist">
@@ -347,28 +350,24 @@
             <summary>Hint 1: Structuring your prompt</summary>
             <p>The more specific you are, the better. Include:</p>
             <ul>
-                <li>Exact node types you want (<code>n8n-nodes-base.httpRequest</code>, <code>n8n-nodes-base.merge</code>, <code>n8n-nodes-base.set</code>)</li>
+                <li>Exact node types (<code>n8n-nodes-base.httpRequest</code>, <code>n8n-nodes-base.merge</code>, <code>n8n-nodes-base.set</code>)</li>
                 <li>Exact API URLs</li>
-                <li>That you want the trigger to fan out to both HTTP requests in parallel</li>
+                <li>That the trigger should fan out to both HTTP requests in parallel</li>
                 <li>The exact output field names and where they come from</li>
             </ul>
-            <p>Generic prompts get generic (broken) results. Specific prompts get closer to working.</p>
         </details>
         <details>
             <summary>Hint 2: Common issues with LLM-generated workflows</summary>
-            <p>The most common problems:</p>
             <ul>
                 <li><strong>Wrong node type names</strong> — the LLM might invent node types that don't exist</li>
                 <li><strong>Broken expressions</strong> — the <code>{{ }}</code> syntax might be slightly off</li>
                 <li><strong>Wrong Merge configuration</strong> — the Merge node has multiple modes and the LLM often picks the wrong one</li>
-                <li><strong>Missing connections</strong> — some nodes might not be wired up</li>
                 <li><strong>Wrong API response field names</strong> — the LLM might guess <code>$json.quote</code> when the API returns <code>$json.q</code></li>
             </ul>
-            <p>When you find an issue, tell the LLM exactly what went wrong.</p>
         </details>
         <details>
             <summary>Hint 3: The zenquotes API gotcha</summary>
-            <p>The zenquotes.io API returns fields with single-letter keys: <code>q</code> for the quote text and <code>a</code> for the author. Most LLMs don't know this and will generate expressions like <code>$json.quote</code> or <code>$json.text</code>. If your generated workflow has this problem, tell the LLM: "The zenquotes API at /api/random returns an array with objects having 'q' (quote) and 'a' (author) fields, not 'quote' and 'text'."</p>
+            <p>The zenquotes.io API returns fields with single-letter keys: <code>q</code> for the quote text and <code>a</code> for the author. Most LLMs don't know this and will generate expressions like <code>$json.quote</code> or <code>$json.text</code>. Tell the LLM: "The zenquotes API at /api/random returns an array with objects having 'q' (quote) and 'a' (author) fields."</p>
         </details>
     </div>
 
@@ -378,43 +377,39 @@
             <div class="exercise-num">4</div>
             <h2>Use an LLM to Debug a Workflow</h2>
         </div>
-        <p><span class="difficulty diff-investigative">Investigative</span> <span class="skill-tag">LLM-assisted debugging, exporting workflows, describing problems to an LLM</span></p>
+        <p><span class="difficulty diff-investigative">Investigative</span> <span class="skill-tag">LLM-assisted debugging, describing problems to an LLM</span></p>
 
         <h3>The Challenge</h3>
         <p>Import <code>exercise_4_llm_debugging.json</code> from the <code>workflows/</code> folder. This workflow is supposed to fetch a random quote and a programming joke, combine them, and produce a formatted "daily message" output.</p>
 
         <a href="workflows/exercise_4_llm_debugging.json" download class="download-link">&#11015; Download exercise_4_llm_debugging.json</a>
 
-        <p>When you run it, it won't crash with an obvious error. It will produce output, but the output will be wrong. Something is off, and the bugs are subtle enough that reading through the nodes manually will take a while.</p>
-
-        <p>Instead of debugging manually, try this approach:</p>
+        <p>When you run it, it won't crash with an obvious error. It will produce output, but the output will be wrong. Instead of debugging manually, try this approach:</p>
         <ol>
             <li>Run the workflow and observe the output</li>
-            <li>Click through the nodes and note what looks wrong (what data did you expect vs. what you got?)</li>
+            <li>Click through the nodes and note what looks wrong</li>
             <li>Export the workflow JSON (three-dot menu &rarr; Download)</li>
             <li>Paste the JSON into an LLM along with a description of the symptoms</li>
             <li>Ask the LLM to identify the bugs</li>
-            <li>Apply the fixes the LLM suggests</li>
-            <li>Run again and verify</li>
+            <li>Apply the fixes and run again</li>
         </ol>
 
         <h3>Acceptance Criteria</h3>
         <ul class="checklist">
-            <li>You ran the workflow and identified that the output is wrong (describe what you expected vs. what you got)</li>
+            <li>You ran the workflow and identified that the output is wrong</li>
             <li>You exported the workflow JSON and pasted it into an LLM</li>
             <li>The LLM identified at least one bug you hadn't found yet</li>
-            <li>You fixed all the issues and the workflow now produces a clean daily message with one quote and one joke</li>
+            <li>You fixed all the issues and the workflow produces a clean daily message</li>
             <li>You can explain what was wrong and how the LLM's analysis helped</li>
         </ul>
 
         <h3>Hints</h3>
         <details>
-            <summary>Hint 1: What to look for when the output is "wrong but not broken"</summary>
-            <p>Click on each node after execution and count how many items it produces. Does the number make sense? If a node that should produce 1 item produces 50, something is wrong upstream. Also check: are the field values what you expect, or are they empty/undefined?</p>
+            <summary>Hint 1: What to look for when output is "wrong but not broken"</summary>
+            <p>Click on each node after execution and count how many items it produces. Does the number make sense? If a node that should produce 1 item produces 50, something is wrong upstream.</p>
         </details>
         <details>
             <summary>Hint 2: How to prompt the LLM for debugging</summary>
-            <p>A good debugging prompt structure:</p>
 <pre><code>Here is an n8n workflow JSON:
 [paste the JSON]
 
@@ -427,18 +422,77 @@ Instead, what happens is:
 [describe the symptoms you observed]
 
 What bugs can you find in this workflow?</code></pre>
-            <p>The more specific you are about the expected vs. actual behavior, the better the LLM can help.</p>
         </details>
         <details>
             <summary>Hint 3: There are multiple issues</summary>
-            <p>This workflow has at least 3 bugs. One is in an API URL, one is in field name references, and one is a data shape problem where the wrong number of items flows through. The LLM should be able to identify all three if you describe the symptoms well.</p>
+            <p>This workflow has at least 3 bugs. One is in an API URL, one is in field name references, and one is a data shape problem where the wrong number of items flows through.</p>
+        </details>
+    </div>
+
+    <!-- Exercise 9 -->
+    <div class="exercise">
+        <div class="exercise-header">
+            <div class="exercise-num">9</div>
+            <h2>Fix the Order Analytics Pipeline (Extra Hard)</h2>
+        </div>
+        <p><span class="difficulty diff-extra-hard">Extra Hard</span> <span class="skill-tag">End-to-end data tracing, silent failures, interacting bugs</span></p>
+
+        <h3>The Challenge</h3>
+        <p>Import <code>exercise_9_order_analytics.json</code> from the <code>workflows/</code> folder. This is a 9-node order processing pipeline that takes sample order data, splits it into individual orders, calculates totals, filters by value, tags orders as premium or standard, merges everything back together, and generates a summary report.</p>
+
+        <a href="workflows/exercise_9_order_analytics.json" download class="download-link">&#11015; Download exercise_9_order_analytics.json</a>
+
+        <p>Here's the catch: <strong>this workflow will mostly run without crashing.</strong> Some nodes will fail, others will produce output that looks plausible but is wrong. The final report will have incorrect numbers, and the pipeline silently loses data along the way. There are <strong>five bugs</strong>, and some interact with each other.</p>
+
+        <p>The pipeline:</p>
+<pre><code>Sample Orders → Split → Calculate Totals → Filter (High Value?) → Tag Premium / Tag Standard → Merge → Generate Report</code></pre>
+
+        <p>The expected correct output for the sample data:</p>
+        <ul>
+            <li>5 orders total, with totals: $179.98, $34.50, $120.00, $195.00, $91.96</li>
+            <li>3 premium orders (total > $100), 2 standard orders</li>
+            <li>Total revenue: $621.44</li>
+        </ul>
+        <p>If your report doesn't match these numbers, you haven't found all the bugs yet.</p>
+
+        <h3>Acceptance Criteria</h3>
+        <ul class="checklist">
+            <li>All 5 orders flow through the pipeline (no data loss at any stage)</li>
+            <li>Order totals are calculated correctly (unitPrice &times; qty, not NaN or undefined)</li>
+            <li>The IF node correctly separates high-value orders (total > $100) from standard ones</li>
+            <li>The Merge node combines both branches without losing or duplicating data</li>
+            <li>The report shows correct totals: 5 orders, $621.44 revenue, 3 premium</li>
+            <li>You can explain all five bugs and how they interact</li>
+        </ul>
+
+        <h3>Hints</h3>
+        <details>
+            <summary>Hint 1: Start from the beginning — the split fails</summary>
+            <p>Run the workflow and look at the Split Into Orders node. Does it produce 5 individual items? If not, check what field the split is configured to use, and compare that to the actual structure of the data coming from the Sample Orders node.</p>
+        </details>
+        <details>
+            <summary>Hint 2: The totals are NaN</summary>
+            <p>After fixing the split, check the Calculate Totals node output. If the totals are <code>NaN</code>, the Code node is referencing field names that don't exist on the order objects. Look at the JavaScript code and compare to the actual field names in the data.</p>
+        </details>
+        <details>
+            <summary>Hint 3: The filter doesn't filter</summary>
+            <p>Check the IF node's condition type. Is it comparing numbers or strings? And is the operation "equals" or "greater than"? A string comparison of <code>"179.98"</code> equals <code>"100"</code> will never be true. You need a numeric comparison with the right operation.</p>
+        </details>
+        <details>
+            <summary>Hint 4: The merge loses data or duplicates it</summary>
+            <p>The Merge node is using SQL mode with an INNER JOIN. An INNER JOIN only keeps items that exist in <em>both</em> inputs. But after the IF node, each order goes to only one branch. So an INNER JOIN produces zero results. You need a mode that stacks both branches together.</p>
+        </details>
+        <details>
+            <summary>Hint 5: The report crashes with a node reference error</summary>
+            <p>The Generate Report code node uses <code>$('Tag Premium')</code> to count premium orders. But check the actual name of that node on the canvas. In n8n, <code>$('node name')</code> requires an exact match.</p>
         </details>
     </div>
 
     <div class="wrap-up">
         <h2 style="border: none; padding: 0;">Wrap-Up</h2>
-        <p>If you completed exercises 1 and 2, you've built the core diagnostic skill of n8n development: tracing data through nodes, reading error messages, matching field names, and understanding how expressions reference data across the workflow. These are the skills that separate someone who can click through tutorials from someone who can actually build and maintain production workflows.</p>
-        <p>If you completed exercises 3 and 4, you've practiced what is quickly becoming the most practical workflow development skill: using an LLM to generate and debug workflows. The generation loop (describe &rarr; generate &rarr; test &rarr; fix) and the debugging loop (observe symptoms &rarr; export &rarr; ask LLM &rarr; apply fixes) are patterns you'll use every day. The key insight is that LLMs are good at n8n workflows because every workflow is just JSON, and JSON is something LLMs understand deeply.</p>
+        <p>If you completed exercises 1 and 2, you've built the core diagnostic skill of n8n development: tracing data through nodes, reading error messages, matching field names, and understanding how expressions reference data across the workflow.</p>
+        <p>If you completed exercises 3 and 4, you've practiced what is quickly becoming the most practical workflow development skill: using an LLM to generate and debug workflows. The key insight is that LLMs are good at n8n workflows because every workflow is just JSON, and JSON is something LLMs understand deeply.</p>
+        <p>If you completed exercise 9, you've faced the hardest type of bug in workflow automation: silent data corruption across a multi-stage pipeline. These are the bugs that make it to production, because the workflow runs, produces output, and nobody notices the numbers are wrong until someone checks manually.</p>
     </div>
 
 </div>

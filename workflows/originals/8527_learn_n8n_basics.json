@@ -1,0 +1,275 @@
+{
+  "name": "Learn n8n basics in 3 easy steps",
+  "nodes": [
+    {
+      "id": "a5896683-74a7-4f3b-98dc-90bb114e030e",
+      "name": "Schedule me here",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "notes": "Double-click to set!",
+      "position": [480, 240],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 1.2
+    },
+    {
+      "id": "d5a71108-ff33-4214-9662-510d9d30adfc",
+      "name": "Results",
+      "type": "n8n-nodes-base.set",
+      "position": [944, 240],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fa43a283-e401-46e3-bf3c-9cc7fb7dae2f",
+              "name": "quote",
+              "type": "string",
+              "value": "={{ $json.q }}"
+            },
+            {
+              "id": "c16964d2-b6a6-40d4-a4d2-bef0760d0d26",
+              "name": "author",
+              "type": "string",
+              "value": "={{ $json.a }}"
+            }
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 3.4
+    },
+    {
+      "id": "040cbede-4df2-4fed-98c2-b94e21a46e1b",
+      "name": "Get quote",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [704, 240],
+      "parameters": {
+        "url": "https://zenquotes.io/api/random",
+        "options": {}
+      },
+      "notesInFlow": true,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "922cbf37-d1ec-47dd-8da5-00a793acb865",
+      "name": "1. Click 'Execute workflow'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [464, -384],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "e0cb3ca0-3b1a-46dd-80f1-820c42253eb1",
+      "name": "2. Get inspirational quote from the internet",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [688, -384],
+      "parameters": {
+        "url": "https://zenquotes.io/api/random",
+        "options": {}
+      },
+      "notesInFlow": true,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "834bdbc9-b4fd-4148-ab17-ccd03f0df78f",
+      "name": "3. See the results",
+      "type": "n8n-nodes-base.set",
+      "position": [928, -384],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fa43a283-e401-46e3-bf3c-9cc7fb7dae2f",
+              "name": "quote",
+              "type": "string",
+              "value": "={{ $json.q }}"
+            },
+            {
+              "id": "c16964d2-b6a6-40d4-a4d2-bef0760d0d26",
+              "name": "author",
+              "type": "string",
+              "value": "={{ $json.a }}"
+            }
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 3.4
+    },
+    {
+      "id": "20922230-6081-40c8-874c-f1233197981f",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [496, 864],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "months",
+              "triggerAtHour": 6,
+              "monthsInterval": 12
+            }
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 1.2
+    },
+    {
+      "id": "462852ad-c8f2-41df-84a7-81312dd164db",
+      "name": "Quote",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [736, 864],
+      "parameters": {
+        "url": "https://zenquotes.io/api/random",
+        "options": {}
+      },
+      "notesInFlow": true,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "fd47d950-393a-4868-bc49-15f9c980b92c",
+      "name": "Map the fields",
+      "type": "n8n-nodes-base.set",
+      "notes": "Double-click to set!",
+      "position": [1184, 864],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "57322775-a00d-47f5-9424-3188ca2e46e6",
+              "name": "author",
+              "type": "string",
+              "value": "="
+            },
+            {
+              "id": "1b141196-bc29-49d9-9e10-78bf17975cee",
+              "name": "quote",
+              "type": "string",
+              "value": "="
+            },
+            {
+              "id": "b33e5122-1419-4bae-bfd5-0d5fb22a95f2",
+              "name": "joke",
+              "type": "string",
+              "value": "="
+            }
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 3.4
+    },
+    {
+      "id": "f3a0621c-f38b-44e2-a050-a41b69a6013a",
+      "name": "Programming joke",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Check out after running!",
+      "position": [976, 864],
+      "parameters": {
+        "url": "https://v2.jokeapi.dev/joke/Programming?blacklistFlags=nsfw,religious,political,racist,sexist,explicit&type=single",
+        "options": {}
+      },
+      "notesInFlow": true,
+      "typeVersion": 4.2
+    }
+  ],
+  "connections": {
+    "Quote": {
+      "main": [
+        [
+          {
+            "node": "Programming joke",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Results": {
+      "main": [[]]
+    },
+    "Get quote": {
+      "main": [
+        [
+          {
+            "node": "Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map the fields": {
+      "main": [[]]
+    },
+    "Programming joke": {
+      "main": [
+        [
+          {
+            "node": "Map the fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Quote",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule me here": {
+      "main": [
+        [
+          {
+            "node": "Get quote",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1. Click 'Execute workflow'": {
+      "main": [
+        [
+          {
+            "node": "2. Get inspirational quote from the internet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. Get inspirational quote from the internet": {
+      "main": [
+        [
+          {
+            "node": "3. See the results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

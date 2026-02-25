@@ -1,0 +1,225 @@
+{
+  "name": "Manager Agent with Sub-Agent Tools",
+  "nodes": [
+    {
+      "id": "95421925-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      "name": "Chat Trigger",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [-400, 512],
+      "webhookId": "manager-agent-chat",
+      "parameters": {
+        "public": true,
+        "options": {
+          "title": "Manager Agent",
+          "responseMode": "lastNode"
+        },
+        "initialMessages": "Hi! I'm a manager agent. I can help you write emails or analyze data. What do you need?"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "e816ff5f-d3d4-4416-96d9-961a078fb188",
+      "name": "Google Gemini (Manager)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [-32, 736],
+      "parameters": {
+        "options": {
+          "temperature": 0
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9b121aea-be80-46a0-879d-5732b7d4d4f3",
+      "name": "Memory (Email)",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [784, 720],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "2f8104f9-c975-4ed0-b5a9-c5c592878e8c",
+      "name": "Memory (Data)",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [1312, 688],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "c07ce435-64a0-4939-918b-9954e7e663e3",
+      "name": "Google Gemini (Email)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [640, 672],
+      "parameters": {
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "20c108c9-221d-4dde-92ff-028ab4b12c2b",
+      "name": "Google Gemini (Data)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [1184, 672],
+      "parameters": {
+        "options": {
+          "temperature": 0
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "263bd596-d242-4a3e-8555-d23e172b23ef",
+      "name": "DataAgent (Insight Generator)",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "position": [1184, 480],
+      "parameters": {
+        "text": "={{ $fromAI('query', 'The data analysis request', 'string') }}",
+        "options": {
+          "systemMessage": "You are a Data Analysis Agent. You specialize in creating data summaries, explaining metrics, providing business insights, and breaking down analytical concepts. When given a data-related task, provide clear, structured analysis with key findings and recommendations."
+        },
+        "toolDescription": "Responds to instructions requiring metrics, summaries, or data analysis explanations."
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "2efc2325-6fee-4fce-a4ba-8b9b72701a8d",
+      "name": "Memory (Manager)",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [176, 720],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "8c0e14bd-e64f-473f-9f31-0b0d2c800669",
+      "name": "ManagerAgent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [32, 512],
+      "parameters": {
+        "options": {
+          "systemMessage": "You are an AI Manager that delegates tasks to specialized agents. Your job is to analyze the user's message and decide whether it requires:\n\n- An EmailAgent for writing outreach, follow-up, or templated emails\n- A DataAgent for tasks involving data summaries, metrics, or analysis\n\nAlways delegate to the appropriate agent. Do not try to handle tasks yourself. Send clear instructions to the sub-agent about what to produce."
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "ee67ff1c-5651-43bb-a836-f48cf0f4c2bd",
+      "name": "EmailAgent (Communication Specialist)",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "position": [656, 512],
+      "parameters": {
+        "text": "={{ $fromAI('prompt', 'The email writing instructions', 'string') }}",
+        "options": {
+          "systemMessage": "You are a professional Email Writing Assistant. You write polished, effective emails for tasks such as outreach, follow-ups, and client communication. Follow the instruction provided exactly and return only the email content. Use a warm, business-appropriate tone."
+        },
+        "toolDescription": "Writes professional, friendly, or action-oriented emails based on instructions."
+      },
+      "typeVersion": 2.2
+    }
+  ],
+  "connections": {
+    "Memory (Email)": {
+      "ai_memory": [
+        [
+          {
+            "node": "EmailAgent (Communication Specialist)",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory (Data)": {
+      "ai_memory": [
+        [
+          {
+            "node": "DataAgent (Insight Generator)",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory (Manager)": {
+      "ai_memory": [
+        [
+          {
+            "node": "ManagerAgent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini (Manager)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "ManagerAgent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini (Email)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "EmailAgent (Communication Specialist)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini (Data)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "DataAgent (Insight Generator)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Trigger": {
+      "main": [
+        [
+          {
+            "node": "ManagerAgent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DataAgent (Insight Generator)": {
+      "ai_tool": [
+        [
+          {
+            "node": "ManagerAgent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "EmailAgent (Communication Specialist)": {
+      "ai_tool": [
+        [
+          {
+            "node": "ManagerAgent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
